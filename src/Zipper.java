@@ -28,8 +28,13 @@ public class Zipper {
             System.out.println(" Adding: " + files[i].getAbsolutePath());
             out.putNextEntry(new ZipEntry(files[i].getAbsolutePath()));
             int len;
-            while ((len = in.read(tmpBuf)) > 0) {
-                out.write(tmpBuf, 0, len);
+            try {
+
+                while ((len = in.read(tmpBuf)) > 0) {
+                    out.write(tmpBuf, 0, len);
+                }	
+            } catch(Exception e) {
+            	System.out.println("Feil");
             }
 
             out.closeEntry();

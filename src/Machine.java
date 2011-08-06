@@ -34,7 +34,7 @@ public class Machine {
         this.force_action = settings.get("force_action").equals("1");
 
 
-        List<JSONObject> obj = apiHandler.get_api_data("machines/2010");
+        List<JSONObject> obj = apiHandler.get_api_data("machines/"+this.machine_id);
         JSONObject data = obj.get(0);
 
         this.addSchedules((JSONArray) data.get("schedules"));

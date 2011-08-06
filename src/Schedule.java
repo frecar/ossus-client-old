@@ -98,7 +98,7 @@ public class Schedule {
 		for (FolderBackup folderBackup : this.getFolderBackups()) {
 
 			String filename_zip =  "file.zip";
-
+			
 			try {
 				Zipper.zipDir(this.machine.local_temp_folder + filename_zip, folderBackup.getPath());
 
