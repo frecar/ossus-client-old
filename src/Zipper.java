@@ -12,6 +12,7 @@ public class Zipper {
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFileName));
         System.out.println("Creating : " + zipFileName);
         addDir(dirObj, out);
+        System.out.println("Done creating : " + zipFileName);
         out.close();
     }
 
@@ -25,7 +26,6 @@ public class Zipper {
                 continue;
             }
             FileInputStream in = new FileInputStream(files[i].getAbsolutePath());
-            System.out.println(" Adding: " + files[i].getAbsolutePath());
             out.putNextEntry(new ZipEntry(files[i].getAbsolutePath()));
             int len;
             try {

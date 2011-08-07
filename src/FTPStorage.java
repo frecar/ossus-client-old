@@ -1,6 +1,4 @@
-import it.sauronsoftware.ftp4j.FTPAbortedException;
 import it.sauronsoftware.ftp4j.FTPClient;
-import it.sauronsoftware.ftp4j.FTPDataTransferException;
 import it.sauronsoftware.ftp4j.FTPException;
 import it.sauronsoftware.ftp4j.FTPFile;
 import it.sauronsoftware.ftp4j.FTPIllegalReplyException;
@@ -30,15 +28,24 @@ public class FTPStorage {
 	}
 
 	public void deleteFolder(String folder) {
-
 		try {
 			this.client.changeDirectory(folder);
+			
 			FTPFile[] list = this.client.list();
 
 			for(FTPFile file : list) {
-				System.out.print(file);
-			}
+								
+				boolean isDirectory = file.getType() == 1;
+				boolean isFile = file.getType() == 0;
 
+				if(isDirectory) {
+					this.deleteFolder(folder+file.getName());
+					this.client.deleteDirectory(folder+file.getName());
+				} else if(isFile) {
+					this.client.deleteFile(file.getName());
+				}
+			}
+		
 		} catch (Exception e) {
 			e.printStackTrace();
 		}	
@@ -71,34 +78,17 @@ public class FTPStorage {
 		}
 	}
 
-
 	public void upload(String destination, String local_file) {
 
 		try {
+			
 			this.createFolder(destination);
 			this.client.changeDirectory(destination);
 			this.client.upload(new java.io.File(local_file));
-
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (FTPIllegalReplyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (FTPException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (FTPDataTransferException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (FTPAbortedException e) {
-			// TODO Auto-generated catch block
+			
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 }

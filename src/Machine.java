@@ -31,6 +31,11 @@ public class Machine {
         this.os_system = settings.get("os_system");
         this.mysql_dump = settings.get("mysql_dump");
         this.local_temp_folder = settings.get("local_temp_folder");
+        
+        if(! this.local_temp_folder.endsWith(System.getProperty("file.separator"))) {
+        	this.local_temp_folder += System.getProperty("file.separator");
+        }
+        
         this.force_action = settings.get("force_action").equals("1");
 
 
@@ -51,6 +56,7 @@ public class Machine {
             schedule.setMachine(this);
 
             JSONArray folderBackups = ((JSONArray) obj.get("folder_backups"));
+            JSONArray sqlBackups = ((JSONArray) obj.get("sql_backups"));
 
             for (Object folderBackupJson : folderBackups) {
                 FolderBackup folderBackup = new FolderBackup();
@@ -58,6 +64,18 @@ public class Machine {
                 folderBackup.setPath((String) ((JSONObject) folderBackupJson).get("local_folder_path").toString());
                 schedule.addFolderBackup(folderBackup);
             }
+            
+            for (Object sqlBackupJson : sqlBackups) {
+                SQLBackup sqlBackup = new SQLBackup();
+                sqlBackup.setId((String) ((JSONObject) sqlBackupJson).get("id").toString());
+                sqlBackup.setHost((String) ((JSONObject) sqlBackupJson).get("host").toString());
+                sqlBackup.setUsername((String) ((JSONObject) sqlBackupJson).get("username").toString());
+                sqlBackup.setPassword((String) ((JSONObject) sqlBackupJson).get("password").toString());
+                sqlBackup.setDatabase((String) ((JSONObject) sqlBackupJson).get("database").toString());
+                sqlBackup.setType((String) ((JSONObject) sqlBackupJson).get("type").toString());
+                schedule.addSqlBackup(sqlBackup);
+            }
+            
             this.schedules.add(schedule);
         }
     }

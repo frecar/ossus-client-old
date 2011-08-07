@@ -9,14 +9,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-
 public class Person {
 	String name;
 
-
 	public static void main(String[]args) {
 		Map<String, String> settings = new HashMap<String, String>();
-
 
 		try {
 			File file = new File("settings.xml");
@@ -26,11 +23,10 @@ public class Person {
 			Document doc = db.parse(file);
 			doc.getDocumentElement().normalize();
 			NodeList nodeLst = doc.getElementsByTagName("machine");
+			
 			for (int s = 0; s < nodeLst.getLength(); s++) {
-
 				Node fstNode = nodeLst.item(s);
 				if (fstNode.getNodeType() == Node.ELEMENT_NODE) {
-
 					get_value_by_key("server_ip", settings, fstNode);
 					get_value_by_key("machine_id", settings, fstNode);
 					get_value_by_key("username", settings, fstNode);
@@ -38,19 +34,17 @@ public class Person {
 					get_value_by_key("force_action", settings, fstNode);
 					get_value_by_key("local_temp_folder", settings, fstNode);
 					get_value_by_key("os_system", settings, fstNode);
-					get_value_by_key("mysql_dump", settings, fstNode);
-
+					get_value_by_key("mysql_dump", settings, fstNode);	
 				}
 			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		Machine machine = new Machine(settings);
 		machine.runBackup();
-
 	}
-
 
 	private static void get_value_by_key(String key, Map<String, String> settings,
 			Node fstNode) {
