@@ -26,7 +26,7 @@ public class Zipper {
                 continue;
             }
             FileInputStream in = new FileInputStream(files[i].getAbsolutePath());
-            out.putNextEntry(new ZipEntry(files[i].getAbsolutePath()));
+            out.putNextEntry(new ZipEntry(files[i].getAbsolutePath().replace(File.separatorChar,'/')));
             int len;
             try {
 

@@ -107,11 +107,12 @@ public class Schedule {
 
 		for (FolderBackup folderBackup : this.getFolderBackups()) {
 
-			String filename_zip = folderBackup.getPath().replaceAll(file_separator,"_")+".zip";
+			String filename_zip = folderBackup.getPath().replaceAll("\\" + file_separator,"_")+".zip";
 
 			try {
-				//Zipper.zipDir(this.machine.local_temp_folder + filename_zip, folderBackup.getPath());				
-				//ftpStorage.upload(this.upload_path, this.machine.local_temp_folder + filename_zip);
+				Zipper.zipDir(this.machine.local_temp_folder + filename_zip, folderBackup.getPath());				
+				ftpStorage.upload(this.upload_path, this.machine.local_temp_folder + filename_zip);
+				System.out.println(this.upload_path);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
