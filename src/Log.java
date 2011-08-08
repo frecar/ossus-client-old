@@ -1,9 +1,16 @@
-/**
- * Created by IntelliJ IDEA.
- * User: fnc
- * Date: 8/2/11
- * Time: 1:22 PM
- * To change this template use File | Settings | File Templates.
- */
+
 public class Log {
+	
+    APIHandler apiHandler;
+    Machine machine;
+	
+	public Log(APIHandler apiHandler, Machine machine) {
+		this.apiHandler = apiHandler;
+		this.machine = machine;
+	}
+	
+	public void log_info(String text) {
+		this.apiHandler.set_api_data("machinelogs/");		
+	}
+
 }

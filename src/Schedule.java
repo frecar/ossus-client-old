@@ -4,7 +4,6 @@ import java.util.List;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.sql.*;
 
 public class Schedule {
 
@@ -112,12 +111,10 @@ public class Schedule {
 			try {
 				Zipper.zipDir(this.machine.local_temp_folder + filename_zip, folderBackup.getPath());				
 				ftpStorage.upload(this.upload_path, this.machine.local_temp_folder + filename_zip);
-				System.out.println(this.upload_path);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-
 
 		for (SQLBackup sqlBackup : this.getSqlBackups()) {
 
@@ -136,14 +133,12 @@ public class Schedule {
 					this.execShellCmd(executeCmd); 
 				}
 				else {
-
-					
+					continue;
 				}
 				
 				String filename_zip_name = filename_zip.replaceAll(file_separator,"_")+".zip";
 				Zipper.zipDir(this.machine.local_temp_folder+filename_zip_name, folder_zip);
-				ftpStorage.upload(this.upload_path,filename_zip_name);	
-				
+				ftpStorage.upload(this.upload_path,this.machine.local_temp_folder+filename_zip_name);	
 			}
 			catch(Exception d)
 			{
@@ -156,10 +151,9 @@ public class Schedule {
 		try {
 			Runtime runtime = Runtime.getRuntime();
 			Process process = runtime.exec(new String[] { "/bin/bash", "-c", cmd });
-			int exitValue = process.waitFor();
+			//int exitValue = process.waitFor();
 			BufferedReader buf = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			String line = "";
-			while ((line = buf.readLine()) != null) {
+			while ((buf.readLine()) != null) {
 			}
 		} catch (Exception e) {
 			System.out.println(e);
