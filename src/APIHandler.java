@@ -28,14 +28,16 @@ public class APIHandler {
 	public void set_api_data(String url_path) {
 		try {
 
+			
+			URL url = new URL(this.base_url + url_path);
+			String encoding = Base64Coder.encodeString(this.username + ":" + this.password);
+
 			String data = URLEncoder.encode("machine_id", "UTF-8") + "=" + URLEncoder.encode("2010", "UTF-8");
 			data += "&" + URLEncoder.encode("text", "UTF-8") + "=" + URLEncoder.encode("hei", "UTF-8");
 			data += "&" + URLEncoder.encode("type", "UTF-8") + "=" + URLEncoder.encode("info", "UTF-8");
 			data += "&" + URLEncoder.encode("datetime", "UTF-8") + "=" + URLEncoder.encode("2011-10-10 12:12:12", "UTF-8");
 
-			URL url = new URL(this.base_url + url_path);
-			String encoding = Base64Coder.encodeString(this.username + ":" + this.password);
-
+			
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("POST");
 			connection.setDoOutput(true);

@@ -22,9 +22,11 @@ public class Machine {
     public Machine(Map<String, String> settings) {
 
 
-        APIHandler apiHandler = new APIHandler("http://backup.fncit.no/api/");
 
         this.server_ip = settings.get("server_ip");
+        
+        APIHandler apiHandler = new APIHandler("http://" + this.server_ip + "/api/");
+
         this.machine_id = settings.get("machine_id");
         this.username = settings.get("username");
         this.password = settings.get("password");
@@ -39,8 +41,6 @@ public class Machine {
         this.force_action = settings.get("force_action").equals("1");
 
         Log log = new Log(apiHandler, this);
-        
-        log.log_info("HEI");
         
         List<JSONObject> obj = apiHandler.get_api_data("machines/"+this.machine_id);
         JSONObject data = obj.get(0);
