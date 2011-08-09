@@ -86,10 +86,11 @@ public class Schedule {
 
 	public void runBackup() {
 
-		FTPStorage ftpStorage = new FTPStorage();
+		FTPStorage ftpStorage = this.storage;
 
 
 		try {
+			ftpStorage.client.changeDirectory(this.storage.homeFolder);	
 			ftpStorage.client.changeDirectory(this.upload_path);			
 			ftpStorage.deleteFolder(this.upload_path);
 
@@ -111,7 +112,7 @@ public class Schedule {
 			try {
 				System.out.println(this.machine.local_temp_folder + filename_zip);
 				Zipper.zipDir(this.machine.local_temp_folder + filename_zip, folderBackup.getPath());
-				System.out.println("Start upload");
+				System.out.println("Start upload to " + this.upload_path + " server: " + ftpStorage.client.getHost());
 				ftpStorage.upload(this.upload_path, this.machine.local_temp_folder + filename_zip);
 				System.out.println("Done upload");
 			} catch (Exception e) {

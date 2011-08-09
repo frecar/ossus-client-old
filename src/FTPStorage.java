@@ -7,11 +7,14 @@ import java.io.IOException;
 
 public class FTPStorage {
 	FTPClient client = new FTPClient();
-
-	public FTPStorage() {
+	String homeFolder = "";
+	
+	public FTPStorage(String host, String username, String password, String folder) {
 		try {
-			client.connect("backup.fncit.no");
-			client.login("frecar", "76ahf6234a!!");
+			client.connect(host);
+			client.login(username, password);
+			this.homeFolder = folder;
+			
 		} catch (IllegalStateException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -29,6 +32,7 @@ public class FTPStorage {
 
 	public void deleteFolder(String folder) {
 		try {
+			this.client.changeDirectory(this.homeFolder);
 			this.client.changeDirectory(folder);
 			
 			FTPFile[] list = this.client.list();
@@ -52,9 +56,9 @@ public class FTPStorage {
 	}
 
 	public void createFolder(String folder) {
-
 		try {
-			this.client.changeDirectory("~/");
+			System.out.println(":::"+this.homeFolder);
+			this.client.changeDirectory(this.homeFolder);
 		} catch (Exception e2) {
 			e2.printStackTrace();
 		}	
@@ -81,7 +85,6 @@ public class FTPStorage {
 	public void upload(String destination, String local_file) {
 
 		try {
-			
 			this.createFolder(destination);
 			this.client.changeDirectory(destination);
 			this.client.upload(new java.io.File(local_file));
