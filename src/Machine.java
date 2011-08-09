@@ -42,6 +42,8 @@ public class Machine {
 
 		Log log = new Log(apiHandler, this);
 
+		log.log_info("OK");
+		
 		List<JSONObject> obj = apiHandler.get_api_data("machines/"+this.machine_id);
 		JSONObject data = obj.get(0);
 
