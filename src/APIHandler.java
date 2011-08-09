@@ -28,7 +28,6 @@ public class APIHandler {
 	public void set_api_data(String url_path) {
 		try {
 
-			
 			URL url = new URL(this.base_url + url_path);
 			String encoding = Base64Coder.encodeString(this.username + ":" + this.password);
 

@@ -5,13 +5,21 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 public class Zipper {
 
 	static void zipDir(String zipFileName, String dir) throws Exception {
 		File dirObj = new File(dir);
-		ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFileName));
-		addDir(dirObj, out);
-		out.close();
+		try {
+			ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFileName));
+			addDir(dirObj, out);
+			out.close();	
+		} catch(Exception e) {
+			JFrame frame = new JFrame();
+			JOptionPane.showMessageDialog(frame, e.getMessage() + ". Is settings.xml correct?");
+		}
 	}
 
 	static void addDir(File dirObj, ZipOutputStream out) throws IOException {

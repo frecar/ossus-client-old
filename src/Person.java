@@ -2,6 +2,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import java.io.File;
+
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
@@ -16,8 +19,8 @@ public class Person {
 		Map<String, String> settings = new HashMap<String, String>();
 
 		try {
-			File file = new File("settings.xml");
-
+			File file = new File("settings.xml");	
+			
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			Document doc = db.parse(file);
@@ -37,9 +40,13 @@ public class Person {
 					get_value_by_key("mysql_dump", settings, fstNode);	
 				}
 			}
-			
+
 		} catch (Exception e) {
+			JFrame frame = new JFrame();
+			JOptionPane.showMessageDialog(frame, e.getMessage());
+			
 			e.printStackTrace();
+			
 		}
 
 		Machine machine = new Machine(settings);
