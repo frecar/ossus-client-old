@@ -9,8 +9,14 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class APIHandler {
 
@@ -25,18 +31,29 @@ public class APIHandler {
 		password = "76ahf6234a";
 	}
 
-	public void set_api_data(String url_path) {
+	private String getDateTime() {
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date date = new Date();
+		return dateFormat.format(date);
+	}
+
+	public void set_api_data(String url_path, Map<String, String> dataList) {
 		try {
 
 			URL url = new URL(this.base_url + url_path);
 			String encoding = Base64Coder.encodeString(this.username + ":" + this.password);
 
-			String data = URLEncoder.encode("machine_id", "UTF-8") + "=" + URLEncoder.encode("2010", "UTF-8");
-			data += "&" + URLEncoder.encode("text", "UTF-8") + "=" + URLEncoder.encode("hei", "UTF-8");
-			data += "&" + URLEncoder.encode("type", "UTF-8") + "=" + URLEncoder.encode("info", "UTF-8");
-			data += "&" + URLEncoder.encode("datetime", "UTF-8") + "=" + URLEncoder.encode("2011-10-10 12:12:12", "UTF-8");
+			String data = URLEncoder.encode("datetime", "UTF-8") + "=" + URLEncoder.encode(this.getDateTime(), "UTF-8");
 
-			
+
+			Iterator<Entry<String, String>> it = dataList.entrySet().iterator();
+
+			while(it.hasNext()) {
+				Entry<String, String> pairs = it.next();
+				data += "&" + URLEncoder.encode(pairs.getKey(), "UTF-8") + "=" + URLEncoder.encode(pairs.getValue(), "UTF-8");				
+			}
+
+
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("POST");
 			connection.setDoOutput(true);
@@ -48,10 +65,8 @@ public class APIHandler {
 
 			InputStream content = (InputStream) connection.getInputStream();
 			BufferedReader in = new BufferedReader(new InputStreamReader(content));
-			String line;
-			while ((line = in.readLine()) != null) {
-				System.out.println(line);
-			}
+			
+			while(in.readLine() != null) {}
 			
 		} catch (Exception e) {
 			e.printStackTrace();

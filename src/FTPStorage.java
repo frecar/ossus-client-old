@@ -3,18 +3,21 @@ import it.sauronsoftware.ftp4j.FTPException;
 import it.sauronsoftware.ftp4j.FTPFile;
 import it.sauronsoftware.ftp4j.FTPIllegalReplyException;
 
+import java.io.File;
 import java.io.IOException;
 
 public class FTPStorage {
 	FTPClient client = new FTPClient();
 	String homeFolder = "";
-	
-	public FTPStorage(String host, String username, String password, String folder) {
+	Machine machine;
+
+	public FTPStorage(Machine machine, String host, String username, String password, String folder) {
 		try {
 			client.connect(host);
 			client.login(username, password);
 			this.homeFolder = folder;
-			
+			this.machine = machine;
+
 		} catch (IllegalStateException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -34,11 +37,11 @@ public class FTPStorage {
 		try {
 			this.client.changeDirectory(this.homeFolder);
 			this.client.changeDirectory(folder);
-			
+
 			FTPFile[] list = this.client.list();
 
 			for(FTPFile file : list) {
-								
+
 				boolean isDirectory = file.getType() == 1;
 				boolean isFile = file.getType() == 0;
 
@@ -49,7 +52,7 @@ public class FTPStorage {
 					this.client.deleteFile(file.getName());
 				}
 			}
-		
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}	
@@ -57,7 +60,6 @@ public class FTPStorage {
 
 	public void createFolder(String folder) {
 		try {
-			System.out.println(":::"+this.homeFolder);
 			this.client.changeDirectory(this.homeFolder);
 		} catch (Exception e2) {
 			e2.printStackTrace();
@@ -68,7 +70,7 @@ public class FTPStorage {
 
 		for(String p : path) {
 			mid_path+=p+"/";
-			
+
 			try {
 				this.client.changeDirectory(mid_path);	
 			}
@@ -87,11 +89,13 @@ public class FTPStorage {
 		try {
 			this.createFolder(destination);
 			this.client.changeDirectory(destination);
-			this.client.upload(new java.io.File(local_file));
-			
+
+			File file = new java.io.File(local_file);
+			MyTransferListener listener = new MyTransferListener(this.machine, file.length());
+			this.client.upload(file, listener);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
 }

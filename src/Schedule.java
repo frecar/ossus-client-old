@@ -90,7 +90,6 @@ public class Schedule {
 
 
 		try {
-			ftpStorage.client.changeDirectory(this.storage.homeFolder);	
 			ftpStorage.client.changeDirectory(this.upload_path);			
 			ftpStorage.deleteFolder(this.upload_path);
 
@@ -110,11 +109,11 @@ public class Schedule {
 			String filename_zip = folderBackup.getPath().replaceAll("\\" + file_separator,"_").replaceAll("\\:","_")+".zip";
 
 			try {
-				System.out.println(this.machine.local_temp_folder + filename_zip);
+				this.machine.log_info(this.machine.local_temp_folder + filename_zip);
 				Zipper.zipDir(this.machine.local_temp_folder + filename_zip, folderBackup.getPath());
-				System.out.println("Start upload to " + this.upload_path + " server: " + ftpStorage.client.getHost());
+				this.machine.log_info("Start upload to " + this.upload_path + " server: " + ftpStorage.client.getHost());
 				ftpStorage.upload(this.upload_path, this.machine.local_temp_folder + filename_zip);
-				System.out.println("Done upload");
+				this.machine.log_info("Upload of " + filename_zip + " done");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -144,9 +143,9 @@ public class Schedule {
 				Zipper.zipDir(this.machine.local_temp_folder+filename_zip_name, folder_zip);
 				ftpStorage.upload(this.upload_path,this.machine.local_temp_folder+filename_zip_name);	
 			}
-			catch(Exception d)
+			catch(Exception e)
 			{
-				System.out.println(d.getCause());
+				this.machine.log_error(e.getMessage());
 			}
 		}
 	}
@@ -160,7 +159,7 @@ public class Schedule {
 			while ((buf.readLine()) != null) {
 			}
 		} catch (Exception e) {
-			System.out.println(e);
+			this.machine.log_error(e.getMessage());
 		}
 	}
 

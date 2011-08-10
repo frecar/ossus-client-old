@@ -1,8 +1,6 @@
 import java.util.HashMap;
 import java.util.Map;
-
 import java.io.File;
-
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
