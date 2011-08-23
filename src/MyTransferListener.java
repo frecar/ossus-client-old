@@ -49,11 +49,13 @@ public class MyTransferListener implements FTPDataTransferListener {
 	}
 
 	public void aborted() {
-		this.machine.log_error("Transfer aborted");
+		System.out.println("transfer abort");
+		throw new RuntimeException("Transfer aborted");
 	}
 
 	public void failed() {
-		this.machine.log_error("Transfer failed");
+		System.out.println("transfer fail");
+		throw new RuntimeException("Transfer failed");
 	}
 
 }

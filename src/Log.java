@@ -15,8 +15,8 @@ public class Log {
 		map.put("machine_id", this.machine.machine_id);
 		map.put("type", "info");
 		map.put("text", text);		
+		System.out.println(text);
 		this.apiHandler.set_api_data("machinelogs/", map);		
-
 	}
 
 	public void log_error(String text) {
@@ -24,7 +24,8 @@ public class Log {
 		map.put("machine_id", this.machine.machine_id);
 		map.put("type", "error");
 		map.put("text", text);		
-		this.apiHandler.set_api_data("machinelogs/", map);		
+		System.out.println(text);
+	this.apiHandler.set_api_data("machinelogs/", map);		
 	}
 
 	public void log_warning(String text) {
@@ -32,7 +33,8 @@ public class Log {
 		map.put("machine_id", this.machine.machine_id);
 		map.put("type", "warning");
 		map.put("text", text);		
-		this.apiHandler.set_api_data("machinelogs/", map);		
+		System.out.println(text);
+	this.apiHandler.set_api_data("machinelogs/", map);		
 	}
 
 }

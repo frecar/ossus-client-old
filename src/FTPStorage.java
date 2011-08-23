@@ -1,35 +1,36 @@
 import it.sauronsoftware.ftp4j.FTPClient;
-import it.sauronsoftware.ftp4j.FTPException;
 import it.sauronsoftware.ftp4j.FTPFile;
-import it.sauronsoftware.ftp4j.FTPIllegalReplyException;
-
 import java.io.File;
-import java.io.IOException;
 
 public class FTPStorage {
 	FTPClient client = new FTPClient();
 	String homeFolder = "";
 	Machine machine;
 
-	public FTPStorage(Machine machine, String host, String username, String password, String folder) {
-		try {
-			client.connect(host);
-			client.login(username, password);
-			this.homeFolder = folder;
-			this.machine = machine;
+	String host = "";
+	String username = "";
+	String password = "";
 
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (FTPIllegalReplyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (FTPException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public FTPStorage(Machine machine, String host, String username, String password, String folder) {
+
+		this.host = host;
+		this.username = username;
+		this.password = password;
+
+		this.homeFolder = folder;
+		this.machine = machine;
+
+		this.reconnect();
+		
+	}
+
+	public void reconnect() {
+		try {
+			this.machine.log_info("Connectint to FTP-server");
+			this.client.connect(this.host);
+			this.client.login(this.username, this.password);
+		} catch (Exception e) {
+			this.machine.log_error(e.getMessage());
 		}
 	}
 
@@ -46,11 +47,14 @@ public class FTPStorage {
 				boolean isFile = file.getType() == 0;
 
 				if(isDirectory) {
+
 					this.deleteFolder(folder+file.getName());
 					this.client.deleteDirectory(folder+file.getName());
+
 				} else if(isFile) {
 					this.client.deleteFile(file.getName());
 				}
+
 			}
 
 		} catch (Exception e) {
@@ -62,7 +66,7 @@ public class FTPStorage {
 		try {
 			this.client.changeDirectory(this.homeFolder);
 		} catch (Exception e2) {
-			e2.printStackTrace();
+			this.machine.log_error(e2.getMessage());
 		}	
 
 		String[] path = folder.split("/");
@@ -78,24 +82,39 @@ public class FTPStorage {
 				try {
 					this.client.createDirectory(mid_path);
 				} catch (Exception e1) {
-					e1.printStackTrace();
-				}			
+					this.machine.log_error(e1.getMessage());
+				}		
+				this.machine.log_error(e.getMessage());
 			}
 		}
 	}
 
-	public void upload(String destination, String local_file) {
-
+	public void upload(String destination, String local_file, int restart) {
 		try {
 			this.createFolder(destination);
 			this.client.changeDirectory(destination);
 
 			File file = new java.io.File(local_file);
 			MyTransferListener listener = new MyTransferListener(this.machine, file.length());
-			this.client.upload(file, listener);
+
+			if (restart>10) {
+				this.machine.log_warning("Tried to upload 10 times, aborting");
+				return;
+			}
+			else if(restart >= 1) 
+				this.client.append(file, listener);
+			else
+				this.client.upload(file, listener);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+
+			e.getStackTrace();
+			
+			this.machine.log_error(e.getMessage());
+			this.machine.log_warning("Restarting upload");
+			
+			this.reconnect();
+			this.upload(destination, local_file, restart+=1);
 		}
 	}
 }

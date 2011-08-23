@@ -16,14 +16,15 @@ public class Machine {
 	String mysql_dump;
 	String get_next_backup_time;
 	Boolean force_action;
+	APIHandler apiHandler; 
 	Log log;
-	
+
 	List<Schedule> schedules = new ArrayList<Schedule>();
 
 	public Machine(Map<String, String> settings) {
 		this.server_ip = settings.get("server_ip");
 
-		APIHandler apiHandler = new APIHandler(this.server_ip + "/api/");
+		apiHandler = new APIHandler(this.server_ip + "/api/");
 
 		this.machine_id = settings.get("machine_id");
 		this.username = settings.get("username");
@@ -39,7 +40,7 @@ public class Machine {
 		this.force_action = settings.get("force_action").equals("1");
 
 		log = new Log(apiHandler, this);
-		
+
 		List<JSONObject> obj = apiHandler.get_api_data("machines/"+this.machine_id);
 		JSONObject data = obj.get(0);
 
@@ -50,15 +51,15 @@ public class Machine {
 	public void log_info(String text) {
 		this.log.log_info(text);	
 	}
-	
+
 	public void log_error(String text) {
 		this.log.log_error(text);	
 	}
-	
+
 	public void log_warning(String text) {
 		this.log.log_warning(text);	
 	}
-	
+
 	private void addSchedules(JSONArray schedules) {
 
 		for (Object o : schedules) {
@@ -66,13 +67,14 @@ public class Machine {
 			Schedule schedule = new Schedule();
 			schedule.setId(obj.get("id").toString());
 			schedule.setName(obj.get("name").toString());
+			schedule.setCurrent_version_in_loop(obj.get("current_version_in_loop").toString());
 			schedule.setMachine(this);
 
 			JSONObject storage= ((JSONObject) obj.get("storage"));
 
 			schedule.setStorage(new FTPStorage(this, (String)storage.get("host"), (String)storage.get("username"),(String) storage.get("password"), (String) storage.get("folder")));
 			schedule.setUpload_path((String)storage.get("folder") + "/" +  obj.get("current_day_folder_path").toString());
-			
+
 			JSONArray folderBackups = ((JSONArray) obj.get("folder_backups"));
 			JSONArray sqlBackups = ((JSONArray) obj.get("sql_backups"));
 
@@ -93,9 +95,9 @@ public class Machine {
 				sqlBackup.setType((String) ((JSONObject) sqlBackupJson).get("type").toString());
 				schedule.addSqlBackup(sqlBackup);
 			}
-			
-			this.schedules.add(schedule);
-			
+
+			this.schedules.add(schedule);	
+
 		}
 	}
 

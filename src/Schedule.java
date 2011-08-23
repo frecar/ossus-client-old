@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import java.io.BufferedReader;
@@ -11,7 +12,7 @@ public class Schedule {
 	private String name;
 	private Boolean running_backup;
 	private Boolean running_restore;
-	private Integer current_version_in_loop;
+	private String current_version_in_loop;
 	private String upload_path;
 
 	private FTPStorage storage;
@@ -52,12 +53,8 @@ public class Schedule {
 		this.running_restore = running_restore;
 	}
 
-	public Integer getCurrent_version_in_loop() {
-		return current_version_in_loop;
-	}
-
-	public void setCurrent_version_in_loop(Integer current_version_in_loop) {
-		this.current_version_in_loop = current_version_in_loop;
+	public void setCurrent_version_in_loop(String string) {
+		this.current_version_in_loop = string;
 	}
 
 	public String getUpload_path() {
@@ -83,18 +80,36 @@ public class Schedule {
 	public void setMachine(Machine machine) {
 		this.machine = machine;
 	}
+	
+	private int find_next_current_version_in_loop() {
+		
+		if(Integer.parseInt(this.current_version_in_loop) >= 10) {
+			return 1;
+		}
+		
+		return Integer.parseInt(this.current_version_in_loop) + 1;
+			
+	}
+
+	public void save() {
+		HashMap<String, String> map = new HashMap<String, String>();	
+		map.put("name", this.name);
+		map.put("running_backup", "" + this.running_backup);
+		map.put("running_restore", "" + this.running_restore);
+		map.put("current_version_in_loop", ""+this.find_next_current_version_in_loop());
+		this.machine.apiHandler.set_api_data("schedules/" + this.id + "/", map);	
+	}
 
 	public void runBackup() {
 
+		System.out.println(this.current_version_in_loop);
+		
 		FTPStorage ftpStorage = this.storage;
-
 
 		try {
 			ftpStorage.client.changeDirectory(this.upload_path);			
 			ftpStorage.deleteFolder(this.upload_path);
-
 		} catch (Exception e) {
-
 			try {
 				ftpStorage.client.createDirectory(this.upload_path);			
 			}
@@ -116,13 +131,12 @@ public class Schedule {
 
 				this.machine.log_info("Done zipping " + (file.length()/1024/1024) +" MB");
 				this.machine.log_info("Begun uploding " + this.machine.local_temp_folder + filename_zip + " to "+ this.upload_path + " server: " + ftpStorage.client.getHost());
-				ftpStorage.upload(this.upload_path, this.machine.local_temp_folder + filename_zip);
+				ftpStorage.upload(this.upload_path, this.machine.local_temp_folder + filename_zip, 0);
 				this.machine.log_info("Upload of " + filename_zip + " done");
 
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
 		}
 
 		for (SQLBackup sqlBackup : this.getSqlBackups()) {
@@ -147,13 +161,17 @@ public class Schedule {
 
 				String filename_zip_name = filename_zip.replaceAll(file_separator,"_")+".zip";
 				Zipper.zipDir(this.machine.local_temp_folder+filename_zip_name, folder_zip);
-				ftpStorage.upload(this.upload_path,this.machine.local_temp_folder+filename_zip_name);	
+				ftpStorage.upload(this.upload_path,this.machine.local_temp_folder+filename_zip_name, 0);	
 			}
 			catch(Exception e)
 			{
 				this.machine.log_error(e.getMessage());
 			}
 		}
+
+
+		this.save();
+
 	}
 
 	public void execShellCmd(String cmd) {
