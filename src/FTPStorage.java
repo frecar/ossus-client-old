@@ -3,13 +3,13 @@ import it.sauronsoftware.ftp4j.FTPFile;
 import java.io.File;
 
 public class FTPStorage {
-	FTPClient client = new FTPClient();
-	String homeFolder = "";
+	FTPClient client;
+	String homeFolder;
 	Machine machine;
 
-	String host = "";
-	String username = "";
-	String password = "";
+	String host;
+	String username;
+	String password;
 
 	public FTPStorage(Machine machine, String host, String username, String password, String folder) {
 
@@ -20,13 +20,15 @@ public class FTPStorage {
 		this.homeFolder = folder;
 		this.machine = machine;
 
-		this.reconnect();
-		
+		this.reconnect();		
 	}
 
 	public void reconnect() {
 		try {
 			this.machine.log_info("Connectint to FTP-server");
+			
+			this.client = new FTPClient();
+
 			this.client.connect(this.host);
 			this.client.login(this.username, this.password);
 		} catch (Exception e) {
@@ -95,14 +97,25 @@ public class FTPStorage {
 			this.client.changeDirectory(destination);
 
 			File file = new java.io.File(local_file);
-			MyTransferListener listener = new MyTransferListener(this.machine, file.length());
+			MyTransferListener listener = new MyTransferListener(this.machine, this.client, file.length());
 
+			
+			System.out.println("supported: " + this.client.isResumeSupported());
 			if (restart>10) {
 				this.machine.log_warning("Tried to upload 10 times, aborting");
 				return;
 			}
-			else if(restart >= 1) 
-				this.client.append(file, listener);
+			else if(restart >= 1 && this.client.isResumeSupported()) {
+				try {
+					Long uploaded_size = this.client.fileSize(destination+"/"+file.getName());
+					this.machine.log_info("Resuming from byte number: " + uploaded_size);
+					this.client.upload(file, uploaded_size, listener);
+				}
+				catch (Exception e) {
+					this.machine.log_warning("Can not resume, restart upload: " + e.getMessage() );
+					this.client.upload(file, listener);
+				}
+			}
 			else
 				this.client.upload(file, listener);
 
@@ -111,9 +124,15 @@ public class FTPStorage {
 			e.getStackTrace();
 			
 			this.machine.log_error(e.getMessage());
-			this.machine.log_warning("Restarting upload");
+			this.machine.log_warning("Restarting upload in 10 seconds");
+			try {
+				Thread.sleep(10000);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
 			
 			this.reconnect();
+			System.out.println(restart);
 			this.upload(destination, local_file, restart+=1);
 		}
 	}

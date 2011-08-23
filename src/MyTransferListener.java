@@ -1,6 +1,9 @@
+import java.io.IOException;
 import java.util.Date;
 
+import it.sauronsoftware.ftp4j.FTPClient;
 import it.sauronsoftware.ftp4j.FTPDataTransferListener;
+import it.sauronsoftware.ftp4j.FTPIllegalReplyException;
 
 public class MyTransferListener implements FTPDataTransferListener {
 
@@ -8,11 +11,13 @@ public class MyTransferListener implements FTPDataTransferListener {
 	private long totalBytes;
 	private int percentCompleted;
 	private Machine machine;
+	private FTPClient client;
 	private Date datetimeStarted;
 
-	public MyTransferListener(Machine machine, long l) {
+	public MyTransferListener(Machine machine, FTPClient client, long l) {
 		this.totalBytes = l;
 		this.machine = machine;
+		this.client = client;
 		this.datetimeStarted = new Date();
 	}
 
@@ -49,13 +54,18 @@ public class MyTransferListener implements FTPDataTransferListener {
 	}
 
 	public void aborted() {
-		System.out.println("transfer abort");
-		throw new RuntimeException("Transfer aborted");
+		try {
+			this.client.abortCurrentDataTransfer(true);
+		} catch (Exception e) {
+			this.machine.log_error("Transfer aborted");
+		}
 	}
 
 	public void failed() {
-		System.out.println("transfer fail");
-		throw new RuntimeException("Transfer failed");
+		try {
+			this.client.abortCurrentDataTransfer(true);
+		} catch (Exception e) {
+			this.machine.log_error("Transfer failed");
+		}
 	}
-
 }

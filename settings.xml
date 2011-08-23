@@ -2,7 +2,7 @@
 <settings>
 	<machine>
 		<server_ip>http://backup.fncit.no</server_ip>
-		<machine_id>2010</machine_id>
+		<machine_id>5000</machine_id>
 		<username>fredrik</username>
 		<password>passord</password>
 		<force_action>1</force_action>
