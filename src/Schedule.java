@@ -125,7 +125,7 @@ public class Schedule {
 
 			try {
 				this.machine.log_info("Zipping " + this.machine.local_temp_folder + filename_zip);
-				//Zipper.zipDir(this.machine.local_temp_folder + filename_zip, folderBackup.getPath());
+				Zipper.zipDir(this.machine.local_temp_folder + filename_zip, folderBackup.getPath());
 
 				File file = new java.io.File(this.machine.local_temp_folder + filename_zip);
 

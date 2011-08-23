@@ -1,9 +1,7 @@
-import java.io.IOException;
 import java.util.Date;
 
 import it.sauronsoftware.ftp4j.FTPClient;
 import it.sauronsoftware.ftp4j.FTPDataTransferListener;
-import it.sauronsoftware.ftp4j.FTPIllegalReplyException;
 
 public class MyTransferListener implements FTPDataTransferListener {
 
