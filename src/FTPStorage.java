@@ -16,11 +16,10 @@ public class FTPStorage {
 		this.host = host;
 		this.username = username;
 		this.password = password;
-
 		this.homeFolder = folder;
 		this.machine = machine;
-
-		this.reconnect();		
+		this.reconnect();	
+		
 	}
 
 	public void reconnect() {
