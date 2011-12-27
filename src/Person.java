@@ -1,6 +1,8 @@
+import java.security.CodeSource;
 import java.util.HashMap;
 import java.util.Map;
 import java.io.File;
+import java.net.URISyntaxException;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
@@ -10,57 +12,31 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import org.hyperic.sigar.CpuInfo;
-import org.hyperic.sigar.FileSystem;
-import org.hyperic.sigar.Mem;
-import org.hyperic.sigar.Sigar;
-import org.hyperic.sigar.SigarException;
 
 public class Person {
 	String name;
 
-	private static Sigar sigar = new Sigar();
-
-	
-	public static void getInformationsAboutCPU() {
-		System.out.println("************************************");
-		System.out.println("*** Informations about the CPUs: ***");
-		System.out.println("************************************\n");
-
-		CpuInfo[] cpuinfo = null;
-		Mem meminfo = null;
-		
-		try {
-		meminfo = sigar.getMem();
-		cpuinfo = sigar.getCpuInfoList();
-		} catch (SigarException se) {
-		se.printStackTrace();
-		}
-
-		System.out.println("---------------------");
-		System.out.println("Sigar found " + cpuinfo.length + " CPU(s)!");
-		System.out.println("---------------------");
-		
-	}
-	
 	public static void main(String[]args) {
-		
-		getInformationsAboutCPU();
-
-
-		
 
 		Map<String, String> settings = new HashMap<String, String>();
 
+		String settingsLocation = "settings.xml";
+		
 		try {
-			File file = new File("settings.xml");	
-			
+			settingsLocation = args[0];
+		}
+		catch(Exception e) {}
+		
+		try {
+
+			File file = new File(settingsLocation);	
+
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			Document doc = db.parse(file);
 			doc.getDocumentElement().normalize();
 			NodeList nodeLst = doc.getElementsByTagName("machine");
-			
+
 			for (int s = 0; s < nodeLst.getLength(); s++) {
 				Node fstNode = nodeLst.item(s);
 				if (fstNode.getNodeType() == Node.ELEMENT_NODE) {
@@ -78,13 +54,17 @@ public class Person {
 		} catch (Exception e) {
 			JFrame frame = new JFrame();
 			JOptionPane.showMessageDialog(frame, e.getMessage());
-			
+
 			e.printStackTrace();
-			
+
 		}
 
-		Machine machine = new Machine(settings);
+		Machine machine = new Machine(settings);		
 		machine.runBackup();
+
+		//MachineStats machinestats = new MachineStats(machine);
+		//machinestats.save();
+
 	}
 
 	private static void get_value_by_key(String key, Map<String, String> settings,

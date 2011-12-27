@@ -13,6 +13,7 @@ public class Machine {
 	String password;
 	String local_temp_folder;
 	String os_system;
+	Boolean is_busy;
 	String mysql_dump;
 	String get_next_backup_time;
 	Boolean force_action;
@@ -24,8 +25,6 @@ public class Machine {
 	public Machine(Map<String, String> settings) {
 		this.server_ip = settings.get("server_ip");
 
-		apiHandler = new APIHandler(this.server_ip + "/api/");
-
 		this.machine_id = settings.get("machine_id");
 		this.username = settings.get("username");
 		this.password = settings.get("password");
@@ -33,17 +32,21 @@ public class Machine {
 		this.mysql_dump = settings.get("mysql_dump");
 		this.local_temp_folder = settings.get("local_temp_folder");
 
+		apiHandler = new APIHandler(this.server_ip + "/api/", this.username, this.password);
+
 		if(! this.local_temp_folder.endsWith(System.getProperty("file.separator"))) {
 			this.local_temp_folder += System.getProperty("file.separator");
 		}
 
 		this.force_action = settings.get("force_action").equals("1");
 
-		log = new Log(apiHandler, this);
+		this.log = new Log(apiHandler, this);
 
 		List<JSONObject> obj = apiHandler.get_api_data("machines/"+this.machine_id);
 		JSONObject data = obj.get(0);
-
+		
+		this.is_busy = (Boolean) data.get("is_busy");
+		
 		this.addSchedules((JSONArray) data.get("schedules"));
 
 	}
@@ -75,6 +78,9 @@ public class Machine {
 			schedule.setStorage(new FTPStorage(this, (String)storage.get("host"), (String)storage.get("username"),(String) storage.get("password"), (String) storage.get("folder")));
 			schedule.setUpload_path((String)storage.get("folder") + "/" +  obj.get("current_day_folder_path").toString());
 
+			schedule.setRunning_backup(obj.get("running_backup").toString().equals("true"));
+			schedule.setRunning_restore(obj.get("running_restore").toString().equals("true"));
+			
 			JSONArray folderBackups = ((JSONArray) obj.get("folder_backups"));
 			JSONArray sqlBackups = ((JSONArray) obj.get("sql_backups"));
 
@@ -102,10 +108,16 @@ public class Machine {
 	}
 
 	public void runBackup() {
-		this.log_info("Running backup");
-		for (Schedule schedule : this.schedules) {
-			this.log_info("Running schedule " + schedule.getName());
-			schedule.runBackup();
+
+		if(is_busy) {
+			this.log_info("Machine busy");
+		}
+		else {
+			this.log_info("Running backup");
+			for (Schedule schedule : this.schedules) {
+				this.log_info("Running schedule " + schedule.getName());
+				schedule.runBackup();
+			}	
 		}
 	}
 }

@@ -1,6 +1,9 @@
 import it.sauronsoftware.ftp4j.FTPClient;
+import it.sauronsoftware.ftp4j.FTPCommunicationListener;
 import it.sauronsoftware.ftp4j.FTPFile;
 import java.io.File;
+
+import sun.net.ftp.FtpClient;
 
 public class FTPStorage {
 	FTPClient client;
@@ -30,6 +33,7 @@ public class FTPStorage {
 
 			this.client.connect(this.host);
 			this.client.login(this.username, this.password);
+			
 		} catch (Exception e) {
 			this.machine.log_error(e.getMessage());
 		}
@@ -95,18 +99,24 @@ public class FTPStorage {
 			this.createFolder(destination);
 			this.client.changeDirectory(destination);
 
+			
 			File file = new java.io.File(local_file);
 			MyTransferListener listener = new MyTransferListener(this.machine, this.client, file.length());
-
 			
-			System.out.println("supported: " + this.client.isResumeSupported());
 			if (restart>10) {
 				this.machine.log_warning("Tried to upload 10 times, aborting");
 				return;
 			}
 			else if(restart >= 1 && this.client.isResumeSupported()) {
 				try {
+					
+					//Tries to switch to binary mode..
+					this.client.sendCustomCommand("type i");
+					//this.client.sendCustomCommand("binary");
+					//this.client.setType(FTPClient.TYPE_BINARY);
+					
 					Long uploaded_size = this.client.fileSize(destination+"/"+file.getName());
+					
 					this.machine.log_info("Resuming from byte number: " + uploaded_size);
 					this.client.upload(file, uploaded_size, listener);
 				}
@@ -131,7 +141,6 @@ public class FTPStorage {
 			}
 			
 			this.reconnect();
-			System.out.println(restart);
 			this.upload(destination, local_file, restart+=1);
 		}
 	}

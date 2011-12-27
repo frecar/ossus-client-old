@@ -25,10 +25,10 @@ public class APIHandler {
 	private String password;
 
 
-	public APIHandler(String url) {
-		base_url = url;
-		username = "fredrik";
-		password = "76ahf6234a";
+	public APIHandler(String url, String username, String password) {
+		this.base_url = url;
+		this.username = username;
+		this.password = password;
 	}
 
 	private String getDateTime() {

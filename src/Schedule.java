@@ -1,3 +1,8 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -80,15 +85,15 @@ public class Schedule {
 	public void setMachine(Machine machine) {
 		this.machine = machine;
 	}
-	
+
 	private int find_next_current_version_in_loop() {
-		
+
 		if(Integer.parseInt(this.current_version_in_loop) >= 10) {
 			return 1;
 		}
-		
+
 		return Integer.parseInt(this.current_version_in_loop) + 1;
-			
+
 	}
 
 	public void save() {
@@ -102,18 +107,23 @@ public class Schedule {
 
 	public void runBackup() {
 
-		System.out.println(this.current_version_in_loop);
-		
+		this.setRunning_backup(true);
+		this.save();
+
 		FTPStorage ftpStorage = this.storage;
 
 		try {
 			ftpStorage.client.changeDirectory(this.upload_path);			
 			ftpStorage.deleteFolder(this.upload_path);
 		} catch (Exception e) {
+
+			this.machine.log_error("FTP | " + e.getMessage());
+
 			try {
 				ftpStorage.client.createDirectory(this.upload_path);			
 			}
 			catch (Exception es) {
+				this.machine.log_error("FTP | " + es.getMessage());
 			}
 		}
 
@@ -125,7 +135,7 @@ public class Schedule {
 
 			try {
 				this.machine.log_info("Zipping " + this.machine.local_temp_folder + filename_zip);
-				Zipper.zipDir(this.machine.local_temp_folder + filename_zip, folderBackup.getPath());
+				Zipper.zipDir(this.machine.local_temp_folder + filename_zip, folderBackup.getPath(), this.machine);
 
 				File file = new java.io.File(this.machine.local_temp_folder + filename_zip);
 
@@ -142,25 +152,49 @@ public class Schedule {
 		for (SQLBackup sqlBackup : this.getSqlBackups()) {
 
 			String folder_zip = this.machine.local_temp_folder + sqlBackup.getDatabase() + file_separator;
-
 			File f = new File(folder_zip);
 
 			try{
 				f.mkdirs();
 
-				String filename_zip = folder_zip + sqlBackup.getDatabase() + ".sql";
+				String filename_zip;
 
 				if(sqlBackup.getType().equals("mysql")) {
+					
+					filename_zip = folder_zip + sqlBackup.getDatabase() + ".sql";
+
 					String executeCmd = "";
-					executeCmd = this.machine.mysql_dump + " --user='" + sqlBackup.getUsername() + "' --host='" + sqlBackup.getHost()+ "' --password='" + sqlBackup.getPassword() + "' "+sqlBackup.getDatabase()+"> "+filename_zip;
-					this.execShellCmd(executeCmd); 
+					executeCmd =  this.machine.mysql_dump + " --user='" + sqlBackup.getUsername() + "' --host='" + sqlBackup.getHost()+ "' --password='" + sqlBackup.getPassword() + "' "+sqlBackup.getDatabase() + " > " + filename_zip;
+					this.execShellCmd(executeCmd); 					
 				}
 				else {
-					continue;
+
+					filename_zip = folder_zip + sqlBackup.getDatabase();
+
+					Connection conn;	
+
+					Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");		    
+					conn = DriverManager.getConnection("jdbc:sqlserver://" + sqlBackup.getHost() + "; databaseName="+sqlBackup.getDatabase(), sqlBackup.getUsername(), sqlBackup.getPassword());
+
+					conn.setAutoCommit(true);
+					
+					
+		            String backupQuery="BACKUP DATABASE aeosdb to disk=?";
+		            PreparedStatement stmt = conn.prepareStatement(backupQuery);
+
+		            String path="detteerendatabase.bak";
+		            stmt.setString(1, path);
+
+		            stmt.executeUpdate();
+		            
+		            
+
+					conn.close();
+					
 				}
 
 				String filename_zip_name = filename_zip.replaceAll(file_separator,"_")+".zip";
-				Zipper.zipDir(this.machine.local_temp_folder+filename_zip_name, folder_zip);
+				Zipper.zipDir(this.machine.local_temp_folder+filename_zip_name, folder_zip, machine);
 				ftpStorage.upload(this.upload_path,this.machine.local_temp_folder+filename_zip_name, 0);	
 			}
 			catch(Exception e)
@@ -170,8 +204,9 @@ public class Schedule {
 		}
 
 
-		this.save();
 
+		this.setRunning_backup(false);
+		this.save();
 	}
 
 	public void execShellCmd(String cmd) {

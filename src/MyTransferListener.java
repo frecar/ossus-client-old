@@ -40,7 +40,7 @@ public class MyTransferListener implements FTPDataTransferListener {
 
 			if(ms>=1000) {
 				ms /= 1000;
-				this.machine.log_info(percent + " % completed. " + (totalBytesUploaded/1024)/ms + " kb/s");
+				this.machine.log_info(percent + " % completed. " + (totalBytesUploaded/1024)/ms + " kb/s");				
 			}
 
 			this.percentCompleted = percent;

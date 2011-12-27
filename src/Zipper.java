@@ -10,11 +10,14 @@ import javax.swing.JOptionPane;
 
 public class Zipper {
 
-	static void zipDir(String zipFileName, String dir) throws Exception {
+	Machine machine;
+	
+	static void zipDir(String zipFileName, String dir, Machine machine) throws Exception {
+				
 		File dirObj = new File(dir);
 		try {
 			ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFileName));
-			addDir(dirObj, out);
+			addDir(dirObj, out, machine);
 			out.close();	
 		} catch(Exception e) {
 			JFrame frame = new JFrame();
@@ -22,14 +25,20 @@ public class Zipper {
 		}
 	}
 
-	static void addDir(File dirObj, ZipOutputStream out) throws IOException {
+	static void addDir(File dirObj, ZipOutputStream out, Machine machine) throws IOException {
 		try {
 			File[] files = dirObj.listFiles();
 			byte[] tmpBuf = new byte[1024];
 			for (int i = 0; i < files.length; i++) {
 				try {
 					if (files[i].isDirectory()) {
-						addDir(files[i], out);
+						
+						if(machine.local_temp_folder.equals(files[i])) {
+							continue;
+						}
+						
+						addDir(files[i], out, machine);
+						
 						continue;
 					}
 					FileInputStream in = new FileInputStream(files[i].getAbsolutePath());
