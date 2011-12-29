@@ -1,7 +1,5 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -151,6 +149,8 @@ public class Schedule {
 
 		for (SQLBackup sqlBackup : this.getSqlBackups()) {
 
+			this.machine.log_info("Performing " + sqlBackup.getType()+" backup of " + sqlBackup.getDatabase() + " at " + sqlBackup.getHost());
+			
 			String folder_zip = this.machine.local_temp_folder + sqlBackup.getDatabase() + file_separator;
 			File f = new File(folder_zip);
 
@@ -169,26 +169,30 @@ public class Schedule {
 				}
 				else {
 
-					filename_zip = folder_zip + sqlBackup.getDatabase();
+					filename_zip = folder_zip + sqlBackup.getDatabase() + ".bak";
+					
+					this.machine.log_info(filename_zip);
 
 					Connection conn;	
 
 					Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");		    
 					conn = DriverManager.getConnection("jdbc:sqlserver://" + sqlBackup.getHost() + "; databaseName="+sqlBackup.getDatabase(), sqlBackup.getUsername(), sqlBackup.getPassword());
 
-					conn.setAutoCommit(true);
+					this.machine.log_info("setting autocommit");
+
+					conn.setAutoCommit(true);					
 					
+					this.machine.log_info("done setting autocommit");
+
+					Statement select = conn.createStatement();
 					
-		            String backupQuery="BACKUP DATABASE aeosdb to disk=?";
-		            PreparedStatement stmt = conn.prepareStatement(backupQuery);
-
-		            String path="detteerendatabase.bak";
-		            stmt.setString(1, path);
-
-		            stmt.executeUpdate();
+					this.machine.log_info("to file: " + filename_zip);
+							
+					select.executeQuery("BACKUP DATABASE " + sqlBackup.getDatabase() + " TO DISK='" + filename_zip);
 		            
-		            
+					this.machine.log_info("done?");
 
+					
 					conn.close();
 					
 				}

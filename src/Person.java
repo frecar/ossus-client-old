@@ -1,8 +1,6 @@
-import java.security.CodeSource;
 import java.util.HashMap;
 import java.util.Map;
 import java.io.File;
-import java.net.URISyntaxException;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;

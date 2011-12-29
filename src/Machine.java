@@ -42,6 +42,10 @@ public class Machine {
 
 		this.log = new Log(apiHandler, this);
 
+		
+		String version = "FocusBackup 0.1";
+		this.log_info("Connecting to " + server_ip + ". Current version: " + version);
+
 		List<JSONObject> obj = apiHandler.get_api_data("machines/"+this.machine_id);
 		JSONObject data = obj.get(0);
 		
@@ -109,6 +113,7 @@ public class Machine {
 
 	public void runBackup() {
 
+			
 		if(is_busy) {
 			this.log_info("Machine busy");
 		}

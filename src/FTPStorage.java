@@ -1,9 +1,6 @@
 import it.sauronsoftware.ftp4j.FTPClient;
-import it.sauronsoftware.ftp4j.FTPCommunicationListener;
 import it.sauronsoftware.ftp4j.FTPFile;
 import java.io.File;
-
-import sun.net.ftp.FtpClient;
 
 public class FTPStorage {
 	FTPClient client;
@@ -27,7 +24,7 @@ public class FTPStorage {
 
 	public void reconnect() {
 		try {
-			this.machine.log_info("Connectint to FTP-server");
+			this.machine.log_info("Connecting to FTP-server");
 			
 			this.client = new FTPClient();
 
