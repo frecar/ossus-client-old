@@ -129,7 +129,7 @@ public class Schedule {
 
 		for (FolderBackup folderBackup : this.getFolderBackups()) {
 
-			String filename_zip = folderBackup.getPath().replaceAll("\\" + file_separator,"_").replaceAll("\\:","_")+".zip";
+			String filename_zip = folderBackup.getPath().replaceAll("\\" + file_separator,"_").replaceAll("\\:","_").replaceAll(" ","-")+".zip";
 
 			try {
 				this.machine.log_info("Zipping " + this.machine.local_temp_folder + filename_zip);
@@ -148,53 +148,28 @@ public class Schedule {
 		}
 
 		for (SQLBackup sqlBackup : this.getSqlBackups()) {
-
 			this.machine.log_info("Performing " + sqlBackup.getType()+" backup of " + sqlBackup.getDatabase() + " at " + sqlBackup.getHost());
-			
 			String folder_zip = this.machine.local_temp_folder + sqlBackup.getDatabase() + file_separator;
 			File f = new File(folder_zip);
 
 			try{
 				f.mkdirs();
-
 				String filename_zip;
-
 				if(sqlBackup.getType().equals("mysql")) {
-					
 					filename_zip = folder_zip + sqlBackup.getDatabase() + ".sql";
-
 					String executeCmd = "";
 					executeCmd =  this.machine.mysql_dump + " --user='" + sqlBackup.getUsername() + "' --host='" + sqlBackup.getHost()+ "' --password='" + sqlBackup.getPassword() + "' "+sqlBackup.getDatabase() + " > " + filename_zip;
 					this.execShellCmd(executeCmd); 					
 				}
 				else {
-
 					filename_zip = folder_zip + sqlBackup.getDatabase() + ".bak";
-					
-					this.machine.log_info(filename_zip);
-
 					Connection conn;	
-
-					Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");		    
-					conn = DriverManager.getConnection("jdbc:sqlserver://" + sqlBackup.getHost() + "; databaseName="+sqlBackup.getDatabase(), sqlBackup.getUsername(), sqlBackup.getPassword());
-
-					this.machine.log_info("setting autocommit");
-
+					Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");	
+					conn = DriverManager.getConnection("jdbc:sqlserver://" + sqlBackup.getHost() + "; portNumber=" + sqlBackup.getPort() +"; databaseName="+sqlBackup.getDatabase(), sqlBackup.getUsername(), sqlBackup.getPassword());
 					conn.setAutoCommit(true);					
-					
-					this.machine.log_info("done setting autocommit");
-
 					Statement select = conn.createStatement();
-					
-					this.machine.log_info("to file: " + filename_zip);
-							
-					select.executeQuery("BACKUP DATABASE " + sqlBackup.getDatabase() + " TO DISK='" + filename_zip);
-		            
-					this.machine.log_info("done?");
-
-					
-					conn.close();
-					
+					select.executeQuery("BACKUP DATABASE " + sqlBackup.getDatabase() + " TO DISK='" + filename_zip+"'");
+					conn.close();					
 				}
 
 				String filename_zip_name = filename_zip.replaceAll(file_separator,"_")+".zip";
@@ -280,7 +255,9 @@ class SQLBackup {
 	private String username;
 	private String password;
 	private String host;
+	private String port;
 	private String type;
+	
 
 	public String getId() {
 		return id;
@@ -328,6 +305,14 @@ class SQLBackup {
 
 	public void setDatabase(String database) {
 		this.database = database;
+	}
+
+	public String getPort() {
+		return port;
+	}
+
+	public void setPort(String port) {
+		this.port = port;
 	}
 
 

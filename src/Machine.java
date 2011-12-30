@@ -103,18 +103,18 @@ public class Machine {
 				sqlBackup.setPassword((String) ((JSONObject) sqlBackupJson).get("password").toString());
 				sqlBackup.setDatabase((String) ((JSONObject) sqlBackupJson).get("database").toString());
 				sqlBackup.setType((String) ((JSONObject) sqlBackupJson).get("type").toString());
+				sqlBackup.setPort((String) ((JSONObject) sqlBackupJson).get("port").toString());
 				schedule.addSqlBackup(sqlBackup);
 			}
-
+			
 			this.schedules.add(schedule);	
-
+		
 		}
 	}
 
 	public void runBackup() {
 
-			
-		if(is_busy) {
+		if(is_busy && ! force_action) {
 			this.log_info("Machine busy");
 		}
 		else {
