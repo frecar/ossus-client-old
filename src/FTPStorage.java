@@ -12,22 +12,17 @@ public class FTPStorage {
 	String password;
 
 	public FTPStorage(Machine machine, String host, String username, String password, String folder) {
-
 		this.host = host;
 		this.username = username;
 		this.password = password;
 		this.homeFolder = folder;
 		this.machine = machine;
 		this.reconnect();	
-		
 	}
 
 	public void reconnect() {
-		try {
-			this.machine.log_info("Connecting to FTP-server");
-			
+		try {			
 			this.client = new FTPClient();
-
 			this.client.connect(this.host);
 			this.client.login(this.username, this.password);
 			
@@ -107,7 +102,7 @@ public class FTPStorage {
 			else if(restart >= 1 && this.client.isResumeSupported()) {
 				try {
 					
-					//Tries to switch to binary mode..
+					//Switch to binary mode..
 					this.client.sendCustomCommand("type i");
 					//this.client.sendCustomCommand("binary");
 					//this.client.setType(FTPClient.TYPE_BINARY);

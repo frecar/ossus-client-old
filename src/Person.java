@@ -1,3 +1,4 @@
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.io.File;
@@ -14,7 +15,7 @@ import org.w3c.dom.NodeList;
 public class Person {
 	String name;
 
-	public static void main(String[]args) {
+	public static void main(String[]args) throws ParseException {
 
 		Map<String, String> settings = new HashMap<String, String>();
 
@@ -60,8 +61,8 @@ public class Person {
 		Machine machine = new Machine(settings);		
 		machine.runBackup();
 
-		//MachineStats machinestats = new MachineStats(machine);
-		//machinestats.save();
+		MachineStats machinestats = new MachineStats(machine);
+		machinestats.save();
 
 	}
 

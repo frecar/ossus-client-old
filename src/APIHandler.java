@@ -52,8 +52,7 @@ public class APIHandler {
 				Entry<String, String> pairs = it.next();
 				data += "&" + URLEncoder.encode(pairs.getKey(), "UTF-8") + "=" + URLEncoder.encode(pairs.getValue(), "UTF-8");				
 			}
-
-
+			
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("POST");
 			connection.setDoOutput(true);

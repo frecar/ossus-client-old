@@ -1,7 +1,11 @@
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +26,7 @@ public class Machine {
 
 	List<Schedule> schedules = new ArrayList<Schedule>();
 
-	public Machine(Map<String, String> settings) {
+	public Machine(Map<String, String> settings) throws ParseException {
 		this.server_ip = settings.get("server_ip");
 
 		this.machine_id = settings.get("machine_id");
@@ -67,7 +71,7 @@ public class Machine {
 		this.log.log_warning(text);	
 	}
 
-	private void addSchedules(JSONArray schedules) {
+	private void addSchedules(JSONArray schedules) throws ParseException {
 
 		for (Object o : schedules) {
 			JSONObject obj = (JSONObject) o;
@@ -77,6 +81,12 @@ public class Machine {
 			schedule.setCurrent_version_in_loop(obj.get("current_version_in_loop").toString());
 			schedule.setMachine(this);
 
+			
+			String next_backup_time_string = obj.get("get_next_backup_time").toString();
+			DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd H:m:s");
+			Date next_backup_time = (Date)formatter.parse(next_backup_time_string);
+			schedule.set_next_backup_time(next_backup_time);
+			
 			JSONObject storage= ((JSONObject) obj.get("storage"));
 
 			schedule.setStorage(new FTPStorage(this, (String)storage.get("host"), (String)storage.get("username"),(String) storage.get("password"), (String) storage.get("folder")));
@@ -118,10 +128,11 @@ public class Machine {
 			this.log_info("Machine busy");
 		}
 		else {
-			this.log_info("Running backup");
 			for (Schedule schedule : this.schedules) {
-				this.log_info("Running schedule " + schedule.getName());
-				schedule.runBackup();
+				if(new Date().after(schedule.get_next_backup_time())) {
+					this.log_info("Running schedule " + schedule.getName());
+					schedule.runBackup();	
+				}
 			}	
 		}
 	}

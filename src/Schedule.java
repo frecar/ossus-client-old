@@ -1,7 +1,10 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -17,6 +20,7 @@ public class Schedule {
 	private Boolean running_restore;
 	private String current_version_in_loop;
 	private String upload_path;
+	private Date get_next_backup_time;
 
 	private FTPStorage storage;
 	private Machine machine;
@@ -103,8 +107,27 @@ public class Schedule {
 		this.machine.apiHandler.set_api_data("schedules/" + this.id + "/", map);	
 	}
 
+	private String getDateTime() {
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date date = new Date();
+		return dateFormat.format(date);
+	}
+	
+	public void createBackupEntry(String start, String end) {
+		HashMap<String, String> map = new HashMap<String, String>();	
+		map.put("machine_id", this.machine.machine_id);
+		map.put("schedule_id", "" + this.id);
+		map.put("time_started", start);
+		map.put("time_ended", end);
+			
+		this.machine.apiHandler.set_api_data("backups/", map);	
+		
+	}
+	
 	public void runBackup() {
 
+		String start = this.getDateTime();
+		
 		this.setRunning_backup(true);
 		this.save();
 
@@ -182,10 +205,11 @@ public class Schedule {
 			}
 		}
 
-
-
 		this.setRunning_backup(false);
 		this.save();
+		
+		this.createBackupEntry(start, this.getDateTime());
+		
 	}
 
 	public void execShellCmd(String cmd) {
@@ -216,6 +240,14 @@ public class Schedule {
 
 	public void addSqlBackup(SQLBackup sqlBackup) {
 		this.sqlBackups.add(sqlBackup);
+	}
+
+	public Date get_next_backup_time() {
+		return get_next_backup_time;
+	}
+
+	public void set_next_backup_time(Date get_next_backup_time) {
+		this.get_next_backup_time = get_next_backup_time;
 	}
 }
 
