@@ -3,3 +3,4 @@ bin
 .DS_Store
 .classpath
 settings.xml
+libs/.DS_Store

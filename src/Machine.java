@@ -50,9 +50,16 @@ public class Machine {
 		if(! this.local_temp_folder.endsWith(System.getProperty("file.separator"))) {
 			this.local_temp_folder += System.getProperty("file.separator");
 		}
+		
+		File f_temp = new File(this.local_temp_folder);
+		f_temp.mkdirs();
+		
 		if(! this.agent_folder.endsWith(System.getProperty("file.separator"))) {
 			this.agent_folder += System.getProperty("file.separator");
 		}
+		
+		File f_agent = new File(this.agent_folder);
+		f_agent.mkdirs();
 		
 		download_lib_file("libsigar-amd64-freebsd-6.so");
 		download_lib_file("libsigar-amd64-linux.so");

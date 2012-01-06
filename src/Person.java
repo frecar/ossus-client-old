@@ -63,8 +63,8 @@ public class Person {
 		Machine machine = new Machine(settings);		
 		machine.runBackup();
 
-		MachineStats machinestats = new MachineStats(machine);
-		machinestats.save();
+		//MachineStats machinestats = new MachineStats(machine);
+		//machinestats.save();
 
 	}
 
