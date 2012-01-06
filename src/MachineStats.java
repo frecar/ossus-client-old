@@ -74,6 +74,8 @@ public class MachineStats {
 		map.put("mem_free",""+memFree);
 		map.put("mem_used",""+memUsed);
 		
+		System.out.println(s);
+		
 		map.put("load_average", ""+Math.round(s[0]*100)/100.0);
 
 		this.machine.apiHandler.set_api_data("machinestats/", map);
