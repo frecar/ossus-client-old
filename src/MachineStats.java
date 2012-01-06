@@ -1,16 +1,9 @@
 import java.util.HashMap;
 import java.util.Map;
-import org.hyperic.sigar.Cpu;
-import org.hyperic.sigar.CpuInfo;
 import org.hyperic.sigar.CpuPerc;
-import org.hyperic.sigar.DiskUsage;
-import org.hyperic.sigar.FileSystem;
 import org.hyperic.sigar.Mem;
-import org.hyperic.sigar.NetInterfaceConfig;
-import org.hyperic.sigar.ProcCpu;
 import org.hyperic.sigar.Sigar;
 import org.hyperic.sigar.SigarException;
-import org.hyperic.sigar.cmd.Ps;
 
 public class MachineStats {
 	
@@ -24,30 +17,28 @@ public class MachineStats {
 	long memFree;
 	long memUsed;
 
-	double[] s;
-
+	double[] s = {0.0,0.0,0.0};
+	
 	Sigar sigar;
 
 	public MachineStats(Machine machine) {
 
 		this.sigar = new Sigar();
+		
 		this.machine = machine;
 
-		CpuInfo[] cpuinfo = null;
 		Mem meminfo = null;
-		NetInterfaceConfig netinterface = null;
 
-		Ps ps = null;
+		try {
+			if(!System.getProperty("os.name").contains("Windows")) {
+				s = sigar.getLoadAverage();
+			}
+		} catch (SigarException e1) {
+			this.machine.log_error(e1.getMessage());	
+		}
 
 		try {
 			meminfo = sigar.getMem();
-			cpuinfo = sigar.getCpuInfoList();
-
-			s = sigar.getLoadAverage();
-
-			long[] proclist = sigar.getProcList();
-
-			Cpu cpu = sigar.getCpu();
 
 			CpuPerc cpuperc = sigar.getCpuPerc();
 
@@ -58,7 +49,9 @@ public class MachineStats {
 			memFree = meminfo.getActualFree();
 			memUsed = meminfo.getActualUsed();
 			
-		} catch(Exception e) {}
+		} catch(Exception e) {
+			this.machine.log_error(e.getMessage());
+		}
 
 	}
 	public void save() {
@@ -74,14 +67,9 @@ public class MachineStats {
 		map.put("mem_free",""+memFree);
 		map.put("mem_used",""+memUsed);
 		
-		System.out.println(s);
-		
 		map.put("load_average", ""+Math.round(s[0]*100)/100.0);
 
 		this.machine.apiHandler.set_api_data("machinestats/", map);
-
-		System.out.println("load " + this.s[0]);
-
 	}
 }
 

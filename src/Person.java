@@ -47,6 +47,8 @@ public class Person {
 					get_value_by_key("local_temp_folder", settings, fstNode);
 					get_value_by_key("os_system", settings, fstNode);
 					get_value_by_key("mysql_dump", settings, fstNode);	
+					get_value_by_key("downloads_client", settings, fstNode);	
+					get_value_by_key("agent_folder", settings, fstNode);	
 				}
 			}
 
