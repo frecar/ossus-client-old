@@ -45,7 +45,6 @@ public class APIHandler {
 
 			String data = URLEncoder.encode("datetime", "UTF-8") + "=" + URLEncoder.encode(this.getDateTime(), "UTF-8");
 
-
 			Iterator<Entry<String, String>> it = dataList.entrySet().iterator();
 
 			while(it.hasNext()) {

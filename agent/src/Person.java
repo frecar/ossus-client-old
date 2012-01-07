@@ -63,9 +63,9 @@ public class Person {
 		Machine machine = new Machine(settings);		
 		machine.runBackup();
 
-		//MachineStats machinestats = new MachineStats(machine);
-		//machinestats.save();
-
+		MachineStats machinestats = new MachineStats(machine);
+		machinestats.save();
+		
 	}
 
 	private static void get_value_by_key(String key, Map<String, String> settings,
