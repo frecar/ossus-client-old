@@ -6,10 +6,14 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.hyperic.sigar.Sigar;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.hyperic.sigar.win32.Service;
+import org.hyperic.sigar.win32.Win32Exception;
 
 
 public class Person {
@@ -20,6 +24,16 @@ public class Person {
 		Map<String, String> settings = new HashMap<String, String>();
 
 		String settingsLocation = "settings.xml";
+		
+		ServiceStatus serviceStatus = new ServiceStatus();
+		
+		try {
+			serviceStatus.run();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		
 		try {
 			settingsLocation = args[0];
