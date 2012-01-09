@@ -1,13 +1,17 @@
+import java.io.File;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
-import java.io.File;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+<<<<<<< HEAD
 import org.hyperic.sigar.Sigar;
+=======
+>>>>>>> 6ba04bf5b4cfd0b98c1c4f7342cbd8f436a8cc9a
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -16,8 +20,7 @@ import org.hyperic.sigar.win32.Service;
 import org.hyperic.sigar.win32.Win32Exception;
 
 
-public class Person {
-	String name;
+public class Run {
 
 	public static void main(String[]args) throws ParseException {
 
@@ -28,18 +31,10 @@ public class Person {
 		ServiceStatus serviceStatus = new ServiceStatus();
 		
 		try {
-			serviceStatus.run();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		
-		try {
 			settingsLocation = args[0];
 		}
 		catch(Exception e) {}
-		
+
 		try {
 
 			File file = new File(settingsLocation);	
@@ -74,11 +69,6 @@ public class Person {
 
 		}
 
-		Machine machine = new Machine(settings);		
-		machine.runBackup();
-
-		//MachineStats machinestats = new MachineStats(machine);
-		//machinestats.save();
 
 	}
 
@@ -91,4 +81,6 @@ public class Person {
 
 		settings.put(key, ((Node) fstNm.item(0)).getNodeValue());
 	}
+
+
 }
