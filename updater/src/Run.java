@@ -17,7 +17,7 @@ import org.w3c.dom.NodeList;
 public class Run {
 
 	public static void main(String[]args) throws ParseException {
-		
+
 		Map<String, String> settings = new HashMap<String, String>();
 
 		String settingsLocation = "settings.xml";
@@ -26,7 +26,7 @@ public class Run {
 			settingsLocation = args[0];
 		}
 		catch(Exception e) {}
-		
+
 		try {
 
 			File file = new File(settingsLocation);	
@@ -61,9 +61,9 @@ public class Run {
 
 		}
 
-		
+
 	}
-	
+
 	private static void get_value_by_key(String key, Map<String, String> settings,
 			Node fstNode) {
 		Element fstElmnt = (Element) fstNode;
@@ -73,6 +73,6 @@ public class Run {
 
 		settings.put(key, ((Node) fstNm.item(0)).getNodeValue());
 	}
-	
-	
+
+
 }
