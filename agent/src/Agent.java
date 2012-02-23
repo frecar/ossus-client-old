@@ -47,9 +47,5 @@ public class Agent {
 		settings.put("downloads_client", xmlHandler.get_value("machine", "downloads_client"));
 		settings.put("agent_folder", xmlHandler.get_value("machine", "agent_folder"));
 		
-		//xmlHandler.set_value("machine", "version","0.5");
-		
-		xmlHandler.set_value("machine", "version","Oki");
-		
 	}	
 }
