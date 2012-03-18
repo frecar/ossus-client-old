@@ -1,3 +1,5 @@
+package backupclient.agent;
+
 import java.util.HashMap;
 import java.util.Map;
 import org.hyperic.sigar.CpuPerc;

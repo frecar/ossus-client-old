@@ -1,3 +1,5 @@
+package backupclient.agent;
+
 import java.util.HashMap;
 
 public class Log {
@@ -25,7 +27,7 @@ public class Log {
 		map.put("type", "error");
 		map.put("text", text);		
 		System.out.println(text);
-	this.apiHandler.set_api_data("machinelogs/", map);		
+	    this.apiHandler.set_api_data("machinelogs/", map);
 	}
 
 	public void log_warning(String text) {

@@ -1,3 +1,5 @@
+package backupclient.agent;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -73,7 +75,7 @@ public class APIHandler {
 
 	private String download_data_from_url(String u) {
 
-		String result = "";
+		StringBuilder result = new StringBuilder();
 
 		try {
 			URL url = new URL(u);
@@ -87,13 +89,13 @@ public class APIHandler {
 					new BufferedReader(new InputStreamReader(content));
 			String line;
 			while ((line = in.readLine()) != null) {
-				result += line;
+				result.append(line);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		return result;
+		return result.toString();
 
 	}
 

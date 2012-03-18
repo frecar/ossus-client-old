@@ -1,3 +1,7 @@
+package backupclient.agent;
+
+import backupclient.commons.CrossProcessLock;
+
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
@@ -5,23 +9,27 @@ import java.util.Map;
 public class Agent {
 	String name;
 	Map<String, String> settings;
-
 	
 	public Agent() {}
 	
 	public static void main(String[]args) throws ParseException {
 
+        System.out.println("A new version!");
+        if (1==1) return;
+        boolean update_lock = CrossProcessLock.instance.tryLock(0);
+        if (!update_lock) return; // TODO log this?
+        
 		String settingsLocation = "settings.xml";
 		try {
 			settingsLocation = args[0];
 		}
 		catch(Exception e) {}
-
 		
 		Agent agent = new Agent();
 		agent.buildSettings(settingsLocation);
 				
-		Machine machine = new Machine(agent.settings);		
+		Machine machine = new Machine(agent.settings);
+        if (update_lock) new Thread(new Updater(machine)).start();
 		machine.runBackup();
 
 		MachineStats machinestats = new MachineStats(machine);

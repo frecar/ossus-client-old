@@ -1,3 +1,5 @@
+package backupclient.agent;
+
 import java.util.Date;
 
 import it.sauronsoftware.ftp4j.FTPClient;
@@ -33,7 +35,7 @@ public class MyTransferListener implements FTPDataTransferListener {
 
 		int percent = (int)(100 * (p));
 		
-		if(percent >= this.percentCompleted+1) {
+		if(percent > this.percentCompleted) {
 
 
 			long ms = new Date().getTime() - this.datetimeStarted.getTime();

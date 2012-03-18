@@ -1,3 +1,5 @@
+package backupclient.agent;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import java.io.File;
@@ -11,6 +13,12 @@ import java.util.Map;
 
 public class Machine {
 
+    String current_agent_version;
+    String current_updater_version;
+    String selected_updater_version;
+    boolean auto_update;
+    
+    
 	String server_ip;
 	String machine_id;
 	String username;

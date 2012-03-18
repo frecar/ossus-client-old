@@ -1,3 +1,5 @@
+package backupclient.agent;
+
 import java.io.File;
 
 import javax.swing.JFrame;
