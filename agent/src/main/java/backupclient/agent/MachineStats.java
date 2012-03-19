@@ -2,6 +2,8 @@ package backupclient.agent;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import backupclient.commons.Machine;
 import org.hyperic.sigar.CpuPerc;
 import org.hyperic.sigar.Mem;
 import org.hyperic.sigar.Sigar;

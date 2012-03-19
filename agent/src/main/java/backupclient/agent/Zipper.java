@@ -1,5 +1,7 @@
 package backupclient.agent;
 
+import backupclient.commons.Machine;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

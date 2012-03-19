@@ -1,5 +1,6 @@
 package backupclient.agent;
 
+import backupclient.commons.Machine;
 import it.sauronsoftware.ftp4j.FTPClient;
 import it.sauronsoftware.ftp4j.FTPFile;
 import java.io.File;

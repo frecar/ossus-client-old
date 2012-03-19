@@ -1,5 +1,7 @@
 package backupclient.agent;
 
+import backupclient.commons.Machine;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
@@ -151,20 +153,21 @@ public class Schedule {
 		}
 
 		String file_separator = System.getProperty("file.separator");
+        String tmp_folder = machine.get_local_temp_folder();
 
-		for (FolderBackup folderBackup : this.getFolderBackups()) {
+        for (FolderBackup folderBackup : this.getFolderBackups()) {
 
-			String filename_zip = folderBackup.getPath().replaceAll("\\" + file_separator,"_").replaceAll("\\:","_").replaceAll(" ","-")+".zip";
+            String filename_zip = folderBackup.getPath().replaceAll("\\" + file_separator,"_").replaceAll("\\:","_").replaceAll(" ","-")+".zip";
 
-			try {
-				this.machine.log_info("Zipping " + this.machine.local_temp_folder + filename_zip);
-				Zipper.zipDir(this.machine.local_temp_folder + filename_zip, folderBackup.getPath(), this.machine);
+            try {
+				this.machine.log_info("Zipping " + tmp_folder + filename_zip);
+				Zipper.zipDir(tmp_folder + filename_zip, folderBackup.getPath(), this.machine);
 
-				File file = new java.io.File(this.machine.local_temp_folder + filename_zip);
+				File file = new java.io.File(tmp_folder + filename_zip);
 
 				this.machine.log_info("Done zipping " + (file.length()/1024/1024) +" MB");
-				this.machine.log_info("Begun uploding " + this.machine.local_temp_folder + filename_zip + " to "+ this.upload_path + " server: " + ftpStorage.client.getHost());
-				ftpStorage.upload(this.upload_path, this.machine.local_temp_folder + filename_zip, 0);
+				this.machine.log_info("Begun uploding " + tmp_folder + filename_zip + " to "+ this.upload_path + " server: " + ftpStorage.client.getHost());
+				ftpStorage.upload(this.upload_path, tmp_folder + filename_zip, 0);
 				this.machine.log_info("Upload of " + filename_zip + " done");
 
 			} catch (Exception e) {
@@ -174,7 +177,7 @@ public class Schedule {
 
 		for (SQLBackup sqlBackup : this.getSqlBackups()) {
 			this.machine.log_info("Performing " + sqlBackup.getType()+" backup of " + sqlBackup.getDatabase() + " at " + sqlBackup.getHost());
-			String folder_zip = this.machine.local_temp_folder + sqlBackup.getDatabase() + file_separator;
+			String folder_zip = tmp_folder + sqlBackup.getDatabase() + file_separator;
 			File f = new File(folder_zip);
 
 			try{
@@ -198,8 +201,8 @@ public class Schedule {
 				}
 
 				String filename_zip_name = filename_zip.replaceAll(file_separator,"_")+".zip";
-				Zipper.zipDir(this.machine.local_temp_folder+filename_zip_name, folder_zip, machine);
-				ftpStorage.upload(this.upload_path,this.machine.local_temp_folder+filename_zip_name, 0);	
+				Zipper.zipDir(tmp_folder+filename_zip_name, folder_zip, machine);
+				ftpStorage.upload(this.upload_path, tmp_folder+filename_zip_name, 0);
 			}
 			catch(Exception e)
 			{

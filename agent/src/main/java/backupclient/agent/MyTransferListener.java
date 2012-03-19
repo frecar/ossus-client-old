@@ -2,6 +2,7 @@ package backupclient.agent;
 
 import java.util.Date;
 
+import backupclient.commons.Machine;
 import it.sauronsoftware.ftp4j.FTPClient;
 import it.sauronsoftware.ftp4j.FTPDataTransferListener;
 
