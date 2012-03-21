@@ -12,10 +12,10 @@ import java.util.*;
 
 public class Machine {
 
-    public final String current_agent_version;
-    public final String current_updater_version;
-    public final String selected_updater_version;
-    public final String selected_agent_version;
+    private Version current_agent_version;
+    private Version current_updater_version;
+    public final Version selected_updater_version;
+    public final Version selected_agent_version;
     public final boolean auto_update;
     
     
@@ -68,18 +68,21 @@ public class Machine {
 
 		this.log = new Log(apiHandler, this.machine_id);
 
-		String version = "FocusBackup 0.1";
-		this.log_info("Connecting to " + server_ip + ". Current version: " + version);
+		this.log_info("Connecting to " + server_ip);
 		
 		List<JSONObject> obj = apiHandler.get_api_data("machines/"+this.machine_id);
 		JSONObject data = obj.get(0);
 
-        this.current_agent_version = (String) data.get("current_agent_version");
-        this.current_updater_version = (String) data.get("current_updater_version");
-        this.selected_agent_version = (String) data.get("selected_agent_version");
-        this.selected_updater_version = (String) data.get("selected_updater_version");
+        this.current_agent_version = Version.buildFromJson((JSONObject)  data.get("current_agent_version")); //(String) ((JSONObject) data.get("current_agent_version")).get("name");
+        this.selected_agent_version = Version.buildFromJson((JSONObject)  data.get("selected_agent_version"));
+        this.current_updater_version = Version.buildFromJson((JSONObject)  data.get("current_updater_version"));
+        this.selected_updater_version = Version.buildFromJson((JSONObject)  data.get("selected_updater_version"));
         this.auto_update = (Boolean) data.get("auto_version");
 		this.is_busy = (Boolean) data.get("is_busy");
+        
+        log_info("Current agent version: FocusBackup " + current_agent_version);
+        log_info("Current updater version: FocusBackup " + current_updater_version);
+
 	}
     
     public static Machine buildFromXmlSettings(XMLHandler xmlHandler) {
@@ -102,6 +105,37 @@ public class Machine {
             e.printStackTrace(); // TODO use a real local logger, like util.Logger
             return null; // TODO dont return null here, throw it
         }
+    }
+
+
+    public Version get_current_agent_version() {
+        return current_agent_version;
+    }
+
+    public Version get_current_updater_version() {
+        return current_updater_version;
+    }
+
+    public void set_current_agent_version(Version current_agent_version) {
+        this.current_agent_version = current_agent_version;
+        final String agent_url = "machines/" + machine_id + "/set_agent_version/" + current_agent_version.id;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                apiHandler.get_api_data(agent_url);
+            }
+        }).start();
+    }
+
+    public void set_current_updater_version(Version current_updater_version) {
+        this.current_updater_version = current_updater_version;
+        final String updater_url = "machines/" + machine_id + "/set_updater_version/" + current_updater_version.id;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                apiHandler.get_api_data(updater_url);
+            }
+        }).start();
     }
 
 	public void log_info(String text) {

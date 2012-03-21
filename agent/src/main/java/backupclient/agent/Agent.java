@@ -12,8 +12,7 @@ public class Agent {
 
 	public static void main(String[]args) throws ParseException {
 
-        System.out.println("A new test version!");
-        if (1==1) return;
+        System.out.println("Agent!!!");
         boolean update_lock = CrossProcessLock.instance.tryLock(0);
         if (!update_lock) return; // TODO log this?
         
@@ -24,11 +23,11 @@ public class Agent {
 		catch(Exception e) {}
 		
 		Machine machine =  Machine.buildFromXmlSettings(new XMLHandler(settingsLocation));
-        if (update_lock) new Thread(new Updater(machine)).start();
-		new BackupJob(machine).runBackup();
+        new Thread(new Updater(machine)).start();
+		//new BackupJob(machine).runBackup();
 
-		MachineStats machinestats = new MachineStats(machine);
-		machinestats.save();
+	//	MachineStats machinestats = new MachineStats(machine);
+	//	machinestats.save();
 		
 	}
 

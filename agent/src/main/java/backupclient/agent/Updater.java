@@ -1,18 +1,15 @@
 package backupclient.agent;
 
-import backupclient.commons.APIHandler;
 import backupclient.commons.GenericUpdater;
-import backupclient.commons.Log;
 import backupclient.commons.Machine;
-import org.json.simple.JSONObject;
+import backupclient.commons.Version;
 
-import java.util.List;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class Updater extends GenericUpdater {
 
-    private Machine machine;
-    private APIHandler api_handler;
-    private Log log;
+    private final String updater_file_name = "Updater.jar";
 
     public Updater(Machine machine) {
         super(machine);
@@ -20,21 +17,38 @@ public class Updater extends GenericUpdater {
 
 
     @Override
-    protected String current_version() {
-        return machine.current_updater_version;
+    protected Version current_version() {
+        return machine.get_current_updater_version();
     }
 
     @Override
-    protected String selected_version() {
+    protected Version selected_version() {
         return machine.selected_updater_version;
     }
 
     @Override
     protected String version_url() {
-        return (machine.auto_update) ?
-                "current_updater/" : selected_version();
+        return "clientversions/" + ((machine.auto_update) ?
+                "current_updater/" : selected_version().name);
     }
 
+    @Override
+    protected String out_file_name() {
+        return updater_file_name;
+    }
 
+    @Override
+    protected URL download_link(Version v) {
+        try {
+            return new URL(v.updater_link);
+        } catch (MalformedURLException e) {
+            machine.log_error(e.toString());
+            return null;
+        }
+    }
 
+    @Override
+    protected void download_done(Version new_version) {
+        machine.set_current_updater_version(new_version);
+    }
 }

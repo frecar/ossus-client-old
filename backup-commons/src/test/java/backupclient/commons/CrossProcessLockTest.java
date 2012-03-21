@@ -7,6 +7,7 @@ import static org.junit.Assert.*;
 
 public class CrossProcessLockTest {
 
+
                                            
     private CrossProcessLock lock = CrossProcessLock.instance;
 
@@ -48,7 +49,6 @@ public class CrossProcessLockTest {
         boolean p2_attempt = lock.tryLock(10);
         assertTrue(p2_attempt);
 
-        
     }
 
     @After
