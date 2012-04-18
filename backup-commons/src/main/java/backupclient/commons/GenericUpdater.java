@@ -2,6 +2,11 @@ package backupclient.commons;
 
 import org.json.simple.JSONObject;
 
+/*
+    TODO: The server could send information saying wheter teh version running is the newest/current or not, together
+    with the other Machine / version data when initializing.
+ */
+
 import java.io.*;
 import java.net.URL;
 import java.util.List;
@@ -32,9 +37,15 @@ abstract public class GenericUpdater implements Runnable {
         }
 
         Version selected = getSelectedVersion();
-        if (!selected.equals(current_version())) {
-            download_version(selected);
-            download_done(selected);
+        if (selected == null) {
+            machine.log_error("Failed getting version data");
+            return;
+        }
+        else if (!selected.equals(current_version())) {
+            if(download_version(selected))
+                download_done(selected);
+            else
+                machine.log_error("New version was (probably) not downloaded...");
         }
     }
     
@@ -43,7 +54,6 @@ abstract public class GenericUpdater implements Runnable {
 
         List<JSONObject> json_data = api_handler.get_api_data(version_url());
         if (json_data.size() != 1) {
-            machine.log.log_error("Failed getting version data");
             return null;
         }
 
@@ -51,21 +61,26 @@ abstract public class GenericUpdater implements Runnable {
         return Version.buildFromJson(version_data);
     }
 
-    private void download_version(Version version) {
+    private boolean download_version(Version version) {
         machine.log_info("Downloading new version");
         machine.log_info("Current version: " + current_version());
         machine.log_info("New version: " + version);
         
         URL jar_url = download_link(version);
         if (jar_url != null) try {
-            readAndWriteJar(jar_url);
+            readAndSaveJar(jar_url);
         } catch (IOException e) {
-            e.printStackTrace();
+            machine.log_error(e.toString());
+            return false;
         }
-
+        else {
+            machine.log_error("Download link was null. strange.");
+            return false;
+        }
+        return true;
     }
 
-    private void readAndWriteJar(URL jar_url) throws IOException {
+    private void readAndSaveJar(URL jar_url) throws IOException {
         if (jar_url == null) throw new IOException("URL argument is null");  // not really an ioexception, fix?
         
         BufferedOutputStream file_out = create_updater_file();
@@ -74,7 +89,7 @@ abstract public class GenericUpdater implements Runnable {
         machine.log_info("Starting download");
 
         int read, total = 1;
-        byte[] buff = new byte[8192];
+        byte[] buff = new byte[8192];   // todo: whats a good size
         while ((read = in.read(buff)) != -1) {
             total += read;
             file_out.write(buff, 0, read);

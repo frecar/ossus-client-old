@@ -15,13 +15,9 @@ public class Agent {
         System.out.println("Agent!!!");
         boolean update_lock = CrossProcessLock.instance.tryLock(0);
         if (!update_lock) return; // TODO log this?
-        
-		String settingsLocation = "settings.xml";
-		try {
-			settingsLocation = args[0];
-		}
-		catch(Exception e) {}
-		
+
+        String settingsLocation = args.length > 0 ? args[0] : "settings.xml";
+
 		Machine machine =  Machine.buildFromXmlSettings(new XMLHandler(settingsLocation));
         new Thread(new Updater(machine)).start();
 		//new BackupJob(machine).runBackup();

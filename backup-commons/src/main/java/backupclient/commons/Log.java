@@ -7,36 +7,38 @@ public class Log {
 	APIHandler apiHandler;
 	String machine_id;
 
+    private static enum LogLevel {
+        INFO("info"), ERROR("error"), WARNING("warning");
+        String str;
+        LogLevel(String str) {
+            this.str = str;
+        }
+    }
+
 	public Log(APIHandler apiHandler, String machine_id) {
 		this.apiHandler = apiHandler;
 		this.machine_id = machine_id;
 	}
 
+    private void log_msg(String text, LogLevel level) {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put("machine_id", machine_id);
+        map.put("type", level.str);
+        map.put("text", text);
+        System.out.println(text);
+	//	this.apiHandler.set_api_data("machinelogs/", map); // todo not working right now?
+    }
+
 	public void log_info(String text) {
-		HashMap<String, String> map = new HashMap<String, String>();	
-		map.put("machine_id", machine_id);
-		map.put("type", "info");
-		map.put("text", text);		
-		System.out.println(text);
-		this.apiHandler.set_api_data("machinelogs/", map);		
+        log_msg(text, LogLevel.INFO);
 	}
 
 	public void log_error(String text) {
-		HashMap<String, String> map = new HashMap<String, String>();	
-		map.put("machine_id", machine_id);
-		map.put("type", "error");
-		map.put("text", text);		
-		System.out.println(text);
-	    this.apiHandler.set_api_data("machinelogs/", map);
+        log_msg(text, LogLevel.ERROR);
 	}
 
 	public void log_warning(String text) {
-		HashMap<String, String> map = new HashMap<String, String>();	
-		map.put("machine_id", machine_id);
-		map.put("type", "warning");
-		map.put("text", text);		
-		System.out.println(text);
-	this.apiHandler.set_api_data("machinelogs/", map);		
-	}
+        log_msg(text, LogLevel.WARNING);
+    }
 
 }
