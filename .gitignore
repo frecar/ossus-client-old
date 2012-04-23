@@ -1,6 +1,7 @@
 .project
 *.iml
 bin
+out
 .idea
 .DS_Store
 .classpath
