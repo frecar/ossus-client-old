@@ -39,11 +39,15 @@ public class APIHandler {
 		return dateFormat.format(date);
 	}
 
+    private void addBasicAuth(HttpURLConnection con) {
+        String encoding = Base64Coder.encodeString(this.username + ":" + this.password);
+        con.setRequestProperty("Authorization", "Basic " + encoding);
+    }
+
 	public void set_api_data(String url_path, Map<String, String> dataList) {
 		try {
 
 			URL url = new URL(this.base_url + url_path);
-			String encoding = Base64Coder.encodeString(this.username + ":" + this.password);
 
 			String data = URLEncoder.encode("datetime", "UTF-8") + "=" + URLEncoder.encode(this.getDateTime(), "UTF-8");
 
@@ -57,7 +61,7 @@ public class APIHandler {
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("POST");
 			connection.setDoOutput(true);
-			connection.setRequestProperty("Authorization", "Basic " + encoding);
+            addBasicAuth(connection);
 
 			OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
 			wr.write(data);
@@ -79,11 +83,10 @@ public class APIHandler {
 
 		try {
 			URL url = new URL(u);
-			String encoding = Base64Coder.encodeString(this.username + ":" + this.password);
 
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setDoOutput(true);
-			connection.setRequestProperty("Authorization", "Basic " + encoding);
+            addBasicAuth(connection);
 			InputStream content = (InputStream) connection.getInputStream();
 			BufferedReader in =
 					new BufferedReader(new InputStreamReader(content));

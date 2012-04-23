@@ -26,7 +26,7 @@ public class Log {
         map.put("type", level.str);
         map.put("text", text);
         System.out.println(text);
-	//	this.apiHandler.set_api_data("machinelogs/", map); // todo not working right now?
+		this.apiHandler.set_api_data("machinelogs/", map);
     }
 
 	public void log_info(String text) {

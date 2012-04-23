@@ -7,9 +7,7 @@ import org.json.simple.JSONObject;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class BackupJob {
     
@@ -24,30 +22,36 @@ public class BackupJob {
 
 
     private void getSchedules() {
-        List<JSONObject> json_list = machine.apiHandler.get_api_data("schedules/machine/"+machine.machine_id);
-        JSONObject json_schedules = json_list.get(0);
+        List<JSONObject> json_list = machine.apiHandler.get_api_data("machines/"+machine.machine_id+"/schedules/");
+        if (json_list.isEmpty()) {
+            machine.log.log_error("Could not get schedules");
+            return;
+        }
+
         try {
-            addSchedules((JSONArray) json_schedules.get("schedules"));
+            addSchedules(json_list);
         } catch (ParseException e) {
             machine.log_error("Error getting schedules:\n" + e.toString());
         }
     }
 
 
-    private void addSchedules(JSONArray schedules) throws ParseException {
-
+    private void addSchedules(List<JSONObject> schedules) throws ParseException {
         for (Object o : schedules) {
             JSONObject obj = (JSONObject) o;
             Schedule schedule = new Schedule();
             schedule.setId(obj.get("id").toString());
             schedule.setName(obj.get("name").toString());
-            schedule.setCurrent_version_in_loop(obj.get("current_version_in_loop").toString());
+            schedule.setCurrent_version_in_loop("10");//obj.get("current_version_in_loop").toString());
             schedule.setMachine(machine);
 
 
             String next_backup_time_string = obj.get("get_next_backup_time").toString();
+
             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd H:m:s");
+            next_backup_time_string = "2012-04-22 23:48:56";
             Date next_backup_time = formatter.parse(next_backup_time_string);
+
             schedule.set_next_backup_time(next_backup_time);
 
             JSONObject storage= ((JSONObject) obj.get("storage"));
@@ -61,24 +65,28 @@ public class BackupJob {
             JSONArray folderBackups = ((JSONArray) obj.get("folder_backups"));
             JSONArray sqlBackups = ((JSONArray) obj.get("sql_backups"));
 
-            for (Object folderBackupJson : folderBackups) {
-                FolderBackup folderBackup = new FolderBackup();
-                folderBackup.setId(((JSONObject) folderBackupJson).get("id").toString());
-                folderBackup.setPath(((JSONObject) folderBackupJson).get("local_folder_path").toString());
-                schedule.addFolderBackup(folderBackup);
-            }
+            if (folderBackups != null) {
+                for (Object folderBackupJson : folderBackups) {
+                    FolderBackup folderBackup = new FolderBackup();
+                    folderBackup.setId(((JSONObject) folderBackupJson).get("id").toString());
+                    folderBackup.setPath(((JSONObject) folderBackupJson).get("local_folder_path").toString());
+                    schedule.addFolderBackup(folderBackup);
+                }
+            } else machine.log_info("No folder backups...");
 
-            for (Object sqlBackupJson : sqlBackups) {
-                SQLBackup sqlBackup = new SQLBackup();
-                sqlBackup.setId( ((JSONObject) sqlBackupJson).get("id").toString());
-                sqlBackup.setHost(((JSONObject) sqlBackupJson).get("host").toString());
-                sqlBackup.setUsername(((JSONObject) sqlBackupJson).get("username").toString());
-                sqlBackup.setPassword(((JSONObject) sqlBackupJson).get("password").toString());
-                sqlBackup.setDatabase(((JSONObject) sqlBackupJson).get("database").toString());
-                sqlBackup.setType(((JSONObject) sqlBackupJson).get("type").toString());
-                sqlBackup.setPort(((JSONObject) sqlBackupJson).get("port").toString());
-                schedule.addSqlBackup(sqlBackup);
-            }
+            if (sqlBackups != null) {
+                for (Object sqlBackupJson : sqlBackups) {
+                    SQLBackup sqlBackup = new SQLBackup();
+                    sqlBackup.setId( ((JSONObject) sqlBackupJson).get("id").toString());
+                    sqlBackup.setHost(((JSONObject) sqlBackupJson).get("host").toString());
+                    sqlBackup.setUsername(((JSONObject) sqlBackupJson).get("username").toString());
+                    sqlBackup.setPassword(((JSONObject) sqlBackupJson).get("password").toString());
+                    sqlBackup.setDatabase(((JSONObject) sqlBackupJson).get("database").toString());
+                    sqlBackup.setType(((JSONObject) sqlBackupJson).get("type").toString());
+                    sqlBackup.setPort(((JSONObject) sqlBackupJson).get("port").toString());
+                    schedule.addSqlBackup(sqlBackup);
+                }
+            } else machine.log_info("No sql backups");
 
             this.schedules.add(schedule);
 
