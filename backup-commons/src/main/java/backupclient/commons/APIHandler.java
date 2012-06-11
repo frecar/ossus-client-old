@@ -26,7 +26,6 @@ public class APIHandler {
 	private String username;
 	private String password;
 
-
 	public APIHandler(String url, String username, String password) {
 		this.base_url = url;
 		this.username = username;
@@ -51,12 +50,9 @@ public class APIHandler {
 
 			String data = URLEncoder.encode("datetime", "UTF-8") + "=" + URLEncoder.encode(this.getDateTime(), "UTF-8");
 
-			Iterator<Entry<String, String>> it = dataList.entrySet().iterator();
-
-			while(it.hasNext()) {
-				Entry<String, String> pairs = it.next();
-				data += "&" + URLEncoder.encode(pairs.getKey(), "UTF-8") + "=" + URLEncoder.encode(pairs.getValue(), "UTF-8");				
-			}
+            for (Entry<String, String> pairs : dataList.entrySet()) {
+                data += "&" + URLEncoder.encode(pairs.getKey(), "UTF-8") + "=" + URLEncoder.encode(pairs.getValue(), "UTF-8");
+            }
 			
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("POST");

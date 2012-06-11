@@ -7,10 +7,7 @@ import static org.junit.Assert.*;
 
 public class CrossProcessLockTest {
 
-
-                                           
     private CrossProcessLock lock = CrossProcessLock.instance;
-
 
     // just a simple simulation
     @Test

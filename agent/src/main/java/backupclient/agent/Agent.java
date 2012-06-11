@@ -14,8 +14,6 @@ public class Agent {
 
 	public static void main(String[]args) throws ParseException {
 
-        System.out.println(args[0]);
-
     /*    try {
             new Installer().runInstall();
         } catch (IOException e) {
