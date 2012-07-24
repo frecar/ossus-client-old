@@ -28,7 +28,6 @@ public class Agent {
           }
 
           String settingsLocation = args.length > 0 ? args[0] : "settings.xml";
-
           Machine machine =  Machine.buildFromXmlSettings(new XMLHandler(settingsLocation));
 
           new Thread(new Updater(machine)).start();
