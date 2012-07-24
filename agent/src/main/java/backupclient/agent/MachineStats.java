@@ -59,11 +59,7 @@ public class MachineStats {
 
 	}
 	public void save() {
-
 		Map<String, String> map = new HashMap<String, String>();
-
-		map.put("machine_id", this.machine.machine_id);
-		
 		map.put("cpu_system", ""+Math.round(cpuSystem*100)/100.0);
 		map.put("cpu_user", ""+Math.round(cpuUser*100)/100.0);
 		map.put("cpu_stolen","0.5");
@@ -73,7 +69,7 @@ public class MachineStats {
 		
 		map.put("load_average", ""+Math.round(s[0]*100)/100.0);
 
-		this.machine.apiHandler.set_api_data("machinestats/", map);
+		this.machine.apiHandler.set_api_data("machines/"+this.machine.machine_id+"/create_stats/", map);
 	}
 }
 

@@ -118,15 +118,13 @@ public class Schedule {
 	}
 	
 	public void createBackupEntry(String start, String end) {
-		HashMap<String, String> map = new HashMap<String, String>();	
-		map.put("machine_id", this.machine.machine_id);
+		HashMap<String, String> map = new HashMap<String, String>();
 		map.put("schedule_id", "" + this.id);
 		map.put("time_started", start);
 		map.put("time_ended", end);
-			
-		this.machine.apiHandler.set_api_data("backups/", map);	
-		
-	}
+		this.machine.apiHandler.set_api_data("backups/"+this.machine.machine_id+"/create_backup/", map);
+
+    }
 	
 	public void runBackup() {
 
@@ -136,21 +134,6 @@ public class Schedule {
 		this.save();
 
 		FTPStorage ftpStorage = this.storage;
-
-		try {
-			ftpStorage.client.changeDirectory(this.upload_path);			
-			ftpStorage.deleteFolder(this.upload_path);
-		} catch (Exception e) {
-
-			this.machine.log_error("FTP | " + e.getMessage());
-
-			try {
-				ftpStorage.client.createDirectory(this.upload_path);			
-			}
-			catch (Exception es) {
-				this.machine.log_error("FTP | " + es.getMessage());
-			}
-		}
 
 		String file_separator = System.getProperty("file.separator");
         String tmp_folder = machine.get_local_temp_folder();
@@ -166,12 +149,12 @@ public class Schedule {
 				File file = new java.io.File(tmp_folder + filename_zip);
 
 				this.machine.log_info("Done zipping " + (file.length()/1024/1024) +" MB");
-				this.machine.log_info("Begun uploding " + tmp_folder + filename_zip + " to "+ this.upload_path + " server: " + ftpStorage.client.getHost());
+				this.machine.log_info("Uploading " + tmp_folder + filename_zip + " to "+ this.upload_path + " server: " + ftpStorage.client.getHost());
 				ftpStorage.upload(this.upload_path, tmp_folder + filename_zip, 0);
 				this.machine.log_info("Upload of " + filename_zip + " done");
 
 			} catch (Exception e) {
-				e.printStackTrace();
+			    this.machine.log_error(e.getMessage());
 			}
 		}
 
@@ -186,7 +169,7 @@ public class Schedule {
 				if(sqlBackup.getType().equals("mysql")) {
 					filename_zip = folder_zip + sqlBackup.getDatabase() + ".sql";
 					String executeCmd = "";
-					executeCmd =  this.machine.mysql_dump + " --user='" + sqlBackup.getUsername() + "' --host='" + sqlBackup.getHost()+ "' --password='" + sqlBackup.getPassword() + "' "+sqlBackup.getDatabase() + " > " + filename_zip;
+					executeCmd =  this.machine.mysql_dump + " --user='" + sqlBackup.getUsername() + "' --host='" + sqlBackup.getHost()+ "' --api_token='" + sqlBackup.getPassword() + "' "+sqlBackup.getDatabase() + " > " + filename_zip;
 					this.execShellCmd(executeCmd); 					
 				}
 				else {
@@ -229,7 +212,6 @@ public class Schedule {
 			this.machine.log_error(e.getMessage());
 		}
 	}
-
 
 	public List<FolderBackup> getFolderBackups() {
 		return folderBackups;
@@ -351,7 +333,5 @@ class SQLBackup {
 	public void setPort(String port) {
 		this.port = port;
 	}
-
-
 
 }

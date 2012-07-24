@@ -34,6 +34,6 @@ public class Version {
     
     @Override
     public String toString() {
-        return "Focus Backup Version" + name;
+        return "Focus24 Version" + name;
     }
 }

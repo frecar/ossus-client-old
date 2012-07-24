@@ -26,7 +26,7 @@ public class Log {
         map.put("type", level.str);
         map.put("text", text);
         System.out.println(text);
-		this.apiHandler.set_api_data("machinelogs/", map);
+		this.apiHandler.set_api_data("machines/"+machine_id+"/create_log/", map);
     }
 
 	public void log_info(String text) {
@@ -40,5 +40,4 @@ public class Log {
 	public void log_warning(String text) {
         log_msg(text, LogLevel.WARNING);
     }
-
 }

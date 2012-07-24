@@ -64,10 +64,4 @@ public class Installer {
         out.close();
         System.out.println("Sigar file copied to " + outputFileName);
     }
-
-
-
-
-
-
 }

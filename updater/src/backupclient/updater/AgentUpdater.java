@@ -25,7 +25,7 @@ public class AgentUpdater extends GenericUpdater {
 
     @Override
     protected String version_url() {
-        return "clientversions/" + ((machine.auto_update) ?
+        return "client_versions/" + ((machine.auto_update) ?
                 "current_agent/" : selected_version().name);
     }
 

@@ -15,7 +15,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,13 +22,13 @@ import java.util.Map.Entry;
 public class APIHandler {
 
 	private String base_url;
-	private String username;
-	private String password;
+	private String api_user;
+	private String api_token;
 
-	public APIHandler(String url, String username, String password) {
+	public APIHandler(String url, String api_user, String api_token) {
 		this.base_url = url;
-		this.username = username;
-		this.password = password;
+		this.api_user = api_user;
+		this.api_token = api_token;
 	}
 
 	private String getDateTime() {
@@ -38,26 +37,22 @@ public class APIHandler {
 		return dateFormat.format(date);
 	}
 
-    private void addBasicAuth(HttpURLConnection con) {
-        String encoding = Base64Coder.encodeString(this.username + ":" + this.password);
-        con.setRequestProperty("Authorization", "Basic " + encoding);
-    }
-
 	public void set_api_data(String url_path, Map<String, String> dataList) {
 		try {
 
 			URL url = new URL(this.base_url + url_path);
 
 			String data = URLEncoder.encode("datetime", "UTF-8") + "=" + URLEncoder.encode(this.getDateTime(), "UTF-8");
+            data+= "&api_user=" + api_user + "&api_token=" + api_token;
+
 
             for (Entry<String, String> pairs : dataList.entrySet()) {
                 data += "&" + URLEncoder.encode(pairs.getKey(), "UTF-8") + "=" + URLEncoder.encode(pairs.getValue(), "UTF-8");
             }
-			
+
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("POST");
 			connection.setDoOutput(true);
-            addBasicAuth(connection);
 
 			OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
 			wr.write(data);
@@ -65,9 +60,9 @@ public class APIHandler {
 
 			InputStream content = (InputStream) connection.getInputStream();
 			BufferedReader in = new BufferedReader(new InputStreamReader(content));
-			
+
 			while(in.readLine() != null) {}
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -78,12 +73,15 @@ public class APIHandler {
 		StringBuilder result = new StringBuilder();
 
 		try {
+
+            u += "?" + URLEncoder.encode("datetime", "UTF-8") + "=" + URLEncoder.encode(this.getDateTime(), "UTF-8");
+            u += "&api_user=" + api_user + "&api_token=" + api_token;
+
 			URL url = new URL(u);
 
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setDoOutput(true);
-            addBasicAuth(connection);
-			InputStream content = (InputStream) connection.getInputStream();
+            InputStream content = (InputStream) connection.getInputStream();
 			BufferedReader in =
 					new BufferedReader(new InputStreamReader(content));
 			String line;
@@ -108,8 +106,7 @@ public class APIHandler {
 		Object obj = JSONValue.parse(json_content);
 
 		try {
-			JSONObject jsonObject = (JSONObject) obj;
-			list.add(jsonObject);
+			list.add((JSONObject) obj);
 		} catch (Exception e) {
 			JSONArray jsonArray = (JSONArray) obj;
 			for (Object jsonObject : jsonArray) {

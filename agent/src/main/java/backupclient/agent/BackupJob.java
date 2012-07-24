@@ -3,6 +3,7 @@ package backupclient.agent;
 import backupclient.commons.Machine;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -10,10 +11,10 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class BackupJob {
-    
+
     private final Machine machine;
     private final List<Schedule> schedules;
-    
+
     public BackupJob(Machine machine) throws ParseException {
         this.machine = machine;
         schedules = new ArrayList<Schedule>();
@@ -22,14 +23,22 @@ public class BackupJob {
 
 
     private void getSchedules() {
-        List<JSONObject> json_list = machine.apiHandler.get_api_data("machines/"+machine.machine_id+"/schedules/");
+        List<JSONObject> json_list = machine.apiHandler.get_api_data("machines/" + machine.machine_id + "/schedules/");
+        JSONArray jsonArray = (JSONArray) json_list.get(0).get("schedules");
+        List<JSONObject> schedules = new ArrayList<JSONObject>();
+
         if (json_list.isEmpty()) {
             machine.log.log_error("Could not get schedules");
             return;
         }
 
         try {
-            addSchedules(json_list);
+
+            for (Object jsonObject : jsonArray) {
+                schedules.add((JSONObject) jsonObject);
+            }
+
+            addSchedules(schedules);
         } catch (ParseException e) {
             machine.log_error("Error getting schedules:\n" + e.toString());
         }
@@ -54,10 +63,10 @@ public class BackupJob {
 
             schedule.set_next_backup_time(next_backup_time);
 
-            JSONObject storage= ((JSONObject) obj.get("storage"));
+            JSONObject storage = ((JSONObject) obj.get("storage"));
 
-            schedule.setStorage(new FTPStorage(machine, (String)storage.get("host"), (String)storage.get("username"),(String) storage.get("password"), (String) storage.get("folder")));
-            schedule.setUpload_path(storage.get("folder") + "/" +  obj.get("current_day_folder_path").toString());
+            schedule.setStorage(new FTPStorage(machine, (String) storage.get("host"), (String) storage.get("username"), (String) storage.get("password"), (String) storage.get("folder")));
+            schedule.setUpload_path(storage.get("folder") + "/" + storage.get("current_day_folder_path"));
 
             schedule.setRunning_backup(obj.get("running_backup").toString().equals("true"));
             schedule.setRunning_restore(obj.get("running_restore").toString().equals("true"));
@@ -77,7 +86,7 @@ public class BackupJob {
             if (sqlBackups != null) {
                 for (Object sqlBackupJson : sqlBackups) {
                     SQLBackup sqlBackup = new SQLBackup();
-                    sqlBackup.setId( ((JSONObject) sqlBackupJson).get("id").toString());
+                    sqlBackup.setId(((JSONObject) sqlBackupJson).get("id").toString());
                     sqlBackup.setHost(((JSONObject) sqlBackupJson).get("host").toString());
                     sqlBackup.setUsername(((JSONObject) sqlBackupJson).get("username").toString());
                     sqlBackup.setPassword(((JSONObject) sqlBackupJson).get("password").toString());
@@ -95,17 +104,16 @@ public class BackupJob {
 
     public void runBackup() {
 
-        if(machine.is_busy && ! machine.force_action) {
+        if (machine.is_busy && !machine.force_action) {
             machine.log_info("Machine busy");
-        }
-        else {
+        } else {
             for (Schedule schedule : this.schedules) {
-                if(new Date().after(schedule.get_next_backup_time())) {
+                if (new Date().after(schedule.get_next_backup_time())) {
                     machine.log_info("Running schedule " + schedule.getName());
                     schedule.runBackup();
                 }
             }
         }
     }
-    
+
 }

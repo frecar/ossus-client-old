@@ -28,7 +28,7 @@ public class Updater extends GenericUpdater {
 
     @Override
     protected String version_url() {
-        return "clientversions/" + ((machine.auto_update) ?
+        return "client_versions/" + ((machine.auto_update) ?
                 "current_updater/" : selected_version().name);
     }
 

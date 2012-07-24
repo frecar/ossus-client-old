@@ -20,8 +20,7 @@ abstract public class GenericUpdater implements Runnable {
         this.machine = machine;
         this.api_handler = machine.apiHandler;
     }
-    
-    
+
     protected abstract Version current_version();
     protected abstract Version selected_version();
     protected abstract String out_file_name();
@@ -57,7 +56,7 @@ abstract public class GenericUpdater implements Runnable {
             return null;
         }
 
-        JSONObject version_data = json_data.get(0);
+        JSONObject version_data = (JSONObject)json_data.get(0).get("client_version");
         return Version.buildFromJson(version_data);
     }
 

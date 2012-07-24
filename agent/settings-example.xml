@@ -6,8 +6,8 @@
 		<local_temp_folder>C:\Focus24</local_temp_folder>
 		
 		<machine_id>1000</machine_id>
-		<username>fredrik</username>
-		<password>passord</password>
+		<api_user>fredrik</api_user>
+		<api_token>passord</api_token>
 		<force_action>1</force_action>
 		
 		<os_system>windows xp</os_system>

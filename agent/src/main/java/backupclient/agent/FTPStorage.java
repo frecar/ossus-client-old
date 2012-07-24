@@ -42,12 +42,10 @@ public class FTPStorage {
 			FTPFile[] list = this.client.list();
 
 			for(FTPFile file : list) {
-
 				boolean isDirectory = file.getType() == 1;
 				boolean isFile = file.getType() == 0;
 
 				if(isDirectory) {
-
 					this.deleteFolder(folder+file.getName());
 					this.client.deleteDirectory(folder+file.getName());
 
@@ -58,8 +56,8 @@ public class FTPStorage {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
-		}	
+            this.machine.log_error(e.getMessage());
+        }
 	}
 
 	public void createFolder(String folder) {
@@ -76,16 +74,17 @@ public class FTPStorage {
 			mid_path+=p+"/";
 
 			try {
-				this.client.changeDirectory(mid_path);	
+				this.client.changeDirectory(mid_path);
 			}
 			catch(Exception e) {
 				try {
 					this.client.createDirectory(mid_path);
-				} catch (Exception e1) {
+                } catch (Exception e1) {
 					this.machine.log_error(e1.getMessage());
-				}		
+                }
 				this.machine.log_error(e.getMessage());
-			}
+                this.machine.log_info("Creating folder " + mid_path);
+            }
 		}
 	}
 
@@ -94,7 +93,6 @@ public class FTPStorage {
 			this.createFolder(destination);
 			this.client.changeDirectory(destination);
 
-			
 			File file = new java.io.File(local_file);
 			MyTransferListener listener = new MyTransferListener(this.machine, this.client, file.length());
 			
@@ -125,8 +123,6 @@ public class FTPStorage {
 
 		} catch (Exception e) {
 
-			e.getStackTrace();
-			
 			this.machine.log_error(e.getMessage());
 			this.machine.log_warning("Restarting upload in 10 seconds");
 			try {
@@ -134,7 +130,6 @@ public class FTPStorage {
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
-			
 			this.reconnect();
 			this.upload(destination, local_file, restart+=1);
 		}

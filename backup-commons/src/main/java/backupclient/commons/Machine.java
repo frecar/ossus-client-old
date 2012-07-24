@@ -1,13 +1,8 @@
 package backupclient.commons;
 
-import backupclient.commons.APIHandler;
-import backupclient.commons.Log;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import java.io.File;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Machine {
@@ -22,8 +17,8 @@ public class Machine {
 	public final String server_ip;
 	public final String machine_id;
     //public final String get_next_backup_time;
-    public final String username;
-    public final String password;
+    public final String api_user;
+    public final String api_token;
     public String agent_folder;
     public String local_temp_folder;
     public final String os_system;
@@ -39,16 +34,15 @@ public class Machine {
 	public Machine(Map<String, String> settings) throws ParseException {
 		this.server_ip = settings.get("server_ip");
 		this.machine_id = settings.get("machine_id");
-        this.username = settings.get("username");
-        this.password = settings.get("password");
+        this.api_user = settings.get("api_user");
+        this.api_token = settings.get("api_token");
 		this.os_system = settings.get("os_system");
 		this.downloads_client = settings.get("downloads_client");
 		this.mysql_dump = settings.get("mysql_dump");
 		this.agent_folder = settings.get("agent_folder");
 		this.local_temp_folder = settings.get("local_temp_folder");
 
-		apiHandler = new APIHandler(this.server_ip + "/api/", username, password);
-
+		apiHandler = new APIHandler(this.server_ip + "/api/", api_user, api_token);
 
 		if(! this.local_temp_folder.endsWith(System.getProperty("file.separator"))) {
 			this.local_temp_folder += System.getProperty("file.separator");
@@ -71,13 +65,14 @@ public class Machine {
 		this.log_info("Connecting to " + server_ip);
 		
 		List<JSONObject> obj = apiHandler.get_api_data("machines/"+this.machine_id);
-		JSONObject data = obj.get(0);
+		JSONObject data = (JSONObject)obj.get(0).get("machine");
 
         this.current_agent_version = Version.buildFromJson((JSONObject)  data.get("current_agent_version")); //(String) ((JSONObject) data.get("current_agent_version")).get("name");
         this.selected_agent_version = Version.buildFromJson((JSONObject)  data.get("selected_agent_version"));
         this.current_updater_version = Version.buildFromJson((JSONObject)  data.get("current_updater_version"));
         this.selected_updater_version = Version.buildFromJson((JSONObject)  data.get("selected_updater_version"));
-        this.auto_update = (Boolean) data.get("auto_version");
+
+        this.auto_update = (Boolean) data.get("auto_update");
 		this.is_busy = (Boolean) data.get("is_busy");
         
         log_info("Current agent version: FocusBackup " + current_agent_version);
@@ -90,8 +85,8 @@ public class Machine {
 
         settings.put("machine_id", xmlHandler.get_value("machine", "machine_id"));
         settings.put("server_ip", xmlHandler.get_value("machine", "server_ip"));
-        settings.put("username", xmlHandler.get_value("machine", "username"));
-        settings.put("password", xmlHandler.get_value("machine", "password"));
+        settings.put("api_user", xmlHandler.get_value("machine", "api_user"));
+        settings.put("api_token", xmlHandler.get_value("machine", "api_token"));
         settings.put("force_action", xmlHandler.get_value("machine", "force_action"));
         settings.put("local_temp_folder", xmlHandler.get_value("machine", "local_temp_folder"));
         settings.put("os_system", xmlHandler.get_value("machine", "os_system"));

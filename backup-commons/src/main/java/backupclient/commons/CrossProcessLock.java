@@ -17,6 +17,7 @@ public class CrossProcessLock {
     
     private CrossProcessLock() {
         String tmp_dir = System.getProperty("java.io.tmpdir");
+
         if (! (tmp_dir.endsWith("/")) || tmp_dir.endsWith("\\")) {
             tmp_dir += System.getProperty("file.separator");
         }

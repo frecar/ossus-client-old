@@ -7,3 +7,5 @@ out
 .classpath
 settings.xml
 libs/.DS_Store
+Agent.jar
+Updater.jar
