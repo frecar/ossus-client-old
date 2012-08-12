@@ -21,7 +21,6 @@ public class BackupJob {
         getSchedules();
     }
 
-
     private void getSchedules() {
         List<JSONObject> json_list = machine.apiHandler.get_api_data("machines/" + machine.machine_id + "/schedules/");
         JSONArray jsonArray = (JSONArray) json_list.get(0).get("schedules");
@@ -58,7 +57,6 @@ public class BackupJob {
             String next_backup_time_string = obj.get("get_next_backup_time").toString();
 
             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd H:m:s");
-            next_backup_time_string = "2012-04-22 23:48:56";
             Date next_backup_time = formatter.parse(next_backup_time_string);
 
             schedule.set_next_backup_time(next_backup_time);
@@ -115,5 +113,4 @@ public class BackupJob {
             }
         }
     }
-
 }

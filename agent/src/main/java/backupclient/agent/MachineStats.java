@@ -72,4 +72,3 @@ public class MachineStats {
 		this.machine.apiHandler.set_api_data("machines/"+this.machine.machine_id+"/create_stats/", map);
 	}
 }
-

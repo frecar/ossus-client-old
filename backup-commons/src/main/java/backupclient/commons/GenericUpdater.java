@@ -57,7 +57,7 @@ abstract public class GenericUpdater implements Runnable {
         }
 
         JSONObject version_data = (JSONObject)json_data.get(0).get("client_version");
-        return Version.buildFromJson(version_data);
+        return Version.buildFromJson(version_data, null);
     }
 
     private boolean download_version(Version version) {
@@ -102,6 +102,7 @@ abstract public class GenericUpdater implements Runnable {
     }
 
     private BufferedOutputStream create_updater_file() throws IOException {
+
         machine.log_info("Creating local file: " + out_file_name() );
         File jar_file = new File(out_file_name());
         if (jar_file.exists()) {

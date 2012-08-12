@@ -25,13 +25,12 @@ public class AgentUpdater extends GenericUpdater {
 
     @Override
     protected String version_url() {
-        return "client_versions/" + ((machine.auto_update) ?
-                "current_agent/" : selected_version().name);
+        return "client_versions/" + ((machine.auto_update) ? "current_agent/" : selected_version().name);
     }
 
     @Override
     protected String out_file_name() {
-        return agent_file_name;
+        return machine.get_agent_folder()+agent_file_name;
     }
 
     @Override
@@ -56,7 +55,7 @@ public class AgentUpdater extends GenericUpdater {
         boolean lock = CrossProcessLock.instance.tryLock(0);
         if (!lock) return; // TODO log?
 
-        String settingsLocation = "settings.xml";
+        String settingsLocation = args.length > 0 ? args[0] : "settings.xml";
         Machine machine = Machine.buildFromXmlSettings(new XMLHandler(settingsLocation));
         new AgentUpdater(machine).run();
     }

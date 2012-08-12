@@ -4,6 +4,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -44,7 +45,6 @@ public class APIHandler {
 
 			String data = URLEncoder.encode("datetime", "UTF-8") + "=" + URLEncoder.encode(this.getDateTime(), "UTF-8");
             data+= "&api_user=" + api_user + "&api_token=" + api_token;
-
 
             for (Entry<String, String> pairs : dataList.entrySet()) {
                 data += "&" + URLEncoder.encode(pairs.getKey(), "UTF-8") + "=" + URLEncoder.encode(pairs.getValue(), "UTF-8");

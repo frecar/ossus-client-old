@@ -22,10 +22,9 @@ public class Log {
 
     private void log_msg(String text, LogLevel level) {
         HashMap<String, String> map = new HashMap<String, String>();
-        map.put("machine_id", machine_id);
-        map.put("type", level.str);
-        map.put("text", text);
-        System.out.println(text);
+        map.put("machine_id", ""+machine_id);
+        map.put("type", ""+level.str);
+        map.put("text", ""+text);
 		this.apiHandler.set_api_data("machines/"+machine_id+"/create_log/", map);
     }
 

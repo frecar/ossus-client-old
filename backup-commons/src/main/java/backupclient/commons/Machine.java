@@ -26,6 +26,7 @@ public class Machine {
     public final String mysql_dump;
     public final String downloads_client;
     public final Boolean force_action;
+    public final Boolean run_install;
 
     public final Log log;
 
@@ -67,17 +68,17 @@ public class Machine {
 		List<JSONObject> obj = apiHandler.get_api_data("machines/"+this.machine_id);
 		JSONObject data = (JSONObject)obj.get(0).get("machine");
 
-        this.current_agent_version = Version.buildFromJson((JSONObject)  data.get("current_agent_version")); //(String) ((JSONObject) data.get("current_agent_version")).get("name");
-        this.selected_agent_version = Version.buildFromJson((JSONObject)  data.get("selected_agent_version"));
-        this.current_updater_version = Version.buildFromJson((JSONObject)  data.get("current_updater_version"));
-        this.selected_updater_version = Version.buildFromJson((JSONObject)  data.get("selected_updater_version"));
+        this.current_agent_version = Version.buildFromJson((JSONObject)  data.get("current_agent_version"), this); //(String) ((JSONObject) data.get("current_agent_version")).get("name");
+        this.selected_agent_version = Version.buildFromJson((JSONObject)  data.get("selected_agent_version"), this);
+        this.current_updater_version = Version.buildFromJson((JSONObject)  data.get("current_updater_version"), this);
+        this.selected_updater_version = Version.buildFromJson((JSONObject)  data.get("selected_updater_version"), this);
 
         this.auto_update = (Boolean) data.get("auto_update");
 		this.is_busy = (Boolean) data.get("is_busy");
-        
+		this.run_install = (Boolean) data.get("run_install");
+
         log_info("Current agent version: FocusBackup " + current_agent_version);
         log_info("Current updater version: FocusBackup " + current_updater_version);
-
 	}
     
     public static Machine buildFromXmlSettings(XMLHandler xmlHandler) {

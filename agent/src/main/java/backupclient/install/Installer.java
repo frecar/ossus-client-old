@@ -11,12 +11,15 @@ public class Installer {
     private static Map<String, Map<String, String>> inputFileMap = new HashMap<String, Map<String, String>>();
     private static Map<String, String> outFileMap = new HashMap<String, String>();
     static {
+        inputFileMap.put("Mac OS X", new HashMap<String, String>());
+        inputFileMap.get("Mac OS X").put("x86_64", "libsigar-universal64-macosx.dylib");
+        outFileMap.put("Mac OS X", "/usr/lib/java/");
+
         inputFileMap.put("Linux", new HashMap<String, String>());
         inputFileMap.get("Linux").put("amd64", "libsigar-amd64-linux.so");
         inputFileMap.get("Linux").put("x86", "libsigar-x86-linux.so");
         outFileMap.put("Linux", "/usr/lib/");
 
-        //inputFileMap.put("Mac?? etc")
     }
 
     private String inputFileName;
@@ -52,16 +55,22 @@ public class Installer {
 
     private void copyFile() throws IOException{
 
-        OutputStream out = new FileOutputStream(outputFileName);
-        InputStream in = Installer.class.getResource(inputFileName).openStream();
-        byte[] buff = new byte[4096];
-        int read;
-        while ((read = in.read(buff)) > 0) {
-            out.write(buff, 0, read);
+        if(!outputFileName.equals("") && !inputFileName.equals(""))  {
+
+            OutputStream out = new FileOutputStream(outputFileName);
+            InputStream in = Installer.class.getResource(inputFileName).openStream();
+            byte[] buff = new byte[4096];
+            int read;
+            while ((read = in.read(buff)) > 0) {
+                out.write(buff, 0, read);
+            }
+
+            in.close();
+            out.close();
+
+            System.out.println("Sigar file copied to " + outputFileName);
+
         }
 
-        in.close();
-        out.close();
-        System.out.println("Sigar file copied to " + outputFileName);
     }
 }

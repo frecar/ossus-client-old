@@ -15,7 +15,6 @@ public class Updater extends GenericUpdater {
         super(machine);
     }
 
-
     @Override
     protected Version current_version() {
         return machine.get_current_updater_version();
@@ -34,7 +33,7 @@ public class Updater extends GenericUpdater {
 
     @Override
     protected String out_file_name() {
-        return updater_file_name;
+        return machine.get_agent_folder()+updater_file_name;
     }
 
     @Override

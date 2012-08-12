@@ -12,12 +12,18 @@ public class Version {
         this.agent_link = agent_link;
     }
     
-    static Version buildFromJson(JSONObject json) {
-        String id =  ((Long) json.get("id")).toString();
-        String name = (String) json.get("name");
-        String updater_link = (String) json.get("updater_link");
-        String agent_link = (String) json.get("agent_link");
-        return new Version(id, name, updater_link, agent_link);
+    static Version buildFromJson(JSONObject json, Machine machine) {
+        try {
+            String id =  ((Long) json.get("id")).toString();
+            String name = (String) json.get("name");
+            String updater_link = (String) json.get("updater_link");
+            String agent_link = (String) json.get("agent_link");
+            return new Version(id, name, updater_link, agent_link);
+
+        } catch (NullPointerException e) {
+            machine.log_error("Error getting info about the Client version");
+        }
+        return null;
     }
     
     @Override
