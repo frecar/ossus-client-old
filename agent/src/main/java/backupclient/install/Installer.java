@@ -10,7 +10,9 @@ public class Installer {
 
     private static Map<String, Map<String, String>> inputFileMap = new HashMap<String, Map<String, String>>();
     private static Map<String, String> outFileMap = new HashMap<String, String>();
+
     static {
+
         inputFileMap.put("Mac OS X", new HashMap<String, String>());
         inputFileMap.get("Mac OS X").put("x86_64", "libsigar-universal64-macosx.dylib");
         outFileMap.put("Mac OS X", "/usr/lib/java/");
@@ -19,6 +21,16 @@ public class Installer {
         inputFileMap.get("Linux").put("amd64", "libsigar-amd64-linux.so");
         inputFileMap.get("Linux").put("x86", "libsigar-x86-linux.so");
         outFileMap.put("Linux", "/usr/lib/");
+
+        inputFileMap.put("Windows XP", new HashMap<String, String>());
+        inputFileMap.get("Windows XP").put("x86", "sigar-x86-winnt.dll");
+        inputFileMap.get("Windows XP").put("amd64", "sigar-amd64-winnt.dll");
+        outFileMap.put("Windows XP", "C:\\WINDOWS\\system32\\");
+
+        inputFileMap.put("Windows 2003", new HashMap<String, String>());
+        inputFileMap.get("Windows 2003").put("x86", "sigar-x86-winnt.dll");
+        inputFileMap.get("Windows 2003").put("amd64", "sigar-amd64-winnt.dll");
+        outFileMap.put("Windows 2003", "C:\\WINDOWS\\system32\\");
 
     }
 
@@ -51,7 +63,6 @@ public class Installer {
 
         inputFileName = "/sigarfiles/" + inputFileName ;
     }
-
 
     private void copyFile() throws IOException{
 

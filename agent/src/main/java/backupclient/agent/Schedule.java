@@ -94,6 +94,8 @@ public class Schedule {
 
 	private int find_next_current_version_in_loop() {
 
+        System.out.println("HMM");
+
 		if(Integer.parseInt(this.current_version_in_loop) >= 10) {
 			return 1;
 		}
@@ -107,7 +109,7 @@ public class Schedule {
 		map.put("name", this.name);
 		map.put("running_backup", "" + this.running_backup);
 		map.put("running_restore", "" + this.running_restore);
-		map.put("current_version_in_loop", ""+this.find_next_current_version_in_loop());
+		map.put("current_version_in_loop", "" + this.find_next_current_version_in_loop());
 		this.machine.apiHandler.set_api_data("schedules/" + this.id + "/", map);	
 	}
 

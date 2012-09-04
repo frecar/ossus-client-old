@@ -28,7 +28,6 @@ public class MachineStats {
 	public MachineStats(Machine machine) {
 
 		this.sigar = new Sigar();
-		
 		this.machine = machine;
 
 		Mem meminfo = null;
@@ -58,6 +57,7 @@ public class MachineStats {
 		}
 
 	}
+
 	public void save() {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("cpu_system", ""+Math.round(cpuSystem*100)/100.0);

@@ -50,9 +50,8 @@ public class BackupJob {
             Schedule schedule = new Schedule();
             schedule.setId(obj.get("id").toString());
             schedule.setName(obj.get("name").toString());
-            schedule.setCurrent_version_in_loop("10");//obj.get("current_version_in_loop").toString());
+            schedule.setCurrent_version_in_loop(obj.get("current_version_in_loop").toString());
             schedule.setMachine(machine);
-
 
             String next_backup_time_string = obj.get("get_next_backup_time").toString();
 
