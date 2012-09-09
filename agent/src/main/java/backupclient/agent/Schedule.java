@@ -192,18 +192,16 @@ public class Schedule {
 			} catch (ClassNotFoundException e) {
 				this.machine.log_error(e.getMessage());
 			} 
-									
-			String filename_zip_name = filename_zip.replace(file_separator,"_")+".zip";
-						
-			System.out.println(filename_zip_name);
 			
+			String filename_zip_name = filename_zip.replace(file_separator, "_")+".zip";
+									
 			try {
-				Zipper.zipDir(tmp_folder+filename_zip_name, folder_zip, machine);
+				Zipper.zipDir(filename_zip_name, folder_zip, machine);
 			} catch (Exception e) {
 				this.machine.log_error(e.getMessage());
 			}
 			
-			ftpStorage.upload(this.upload_path, tmp_folder+filename_zip_name, 0);
+			ftpStorage.upload(this.upload_path, filename_zip_name, 0);
 			
 		}
 

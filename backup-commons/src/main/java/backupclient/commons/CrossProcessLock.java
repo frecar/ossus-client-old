@@ -25,6 +25,7 @@ public class CrossProcessLock {
         lock_file = new File(tmp_dir, "focusbackup.lock~");
     
         System.out.println(lock_file);
+        
     }
 
     static {
