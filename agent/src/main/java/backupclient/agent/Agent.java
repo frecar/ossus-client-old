@@ -7,8 +7,6 @@ import backupclient.install.Installer;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Agent {
 
