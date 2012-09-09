@@ -94,8 +94,6 @@ public class Schedule {
 
 	private int find_next_current_version_in_loop() {
 
-        System.out.println("HMM");
-
 		if(Integer.parseInt(this.current_version_in_loop) >= 10) {
 			return 1;
 		}
@@ -170,7 +168,7 @@ public class Schedule {
 				if(sqlBackup.getType().equals("mysql")) {
 					filename_zip = folder_zip + sqlBackup.getDatabase() + ".sql";
 					String executeCmd = "";
-					executeCmd =  this.machine.mysql_dump + " --user='" + sqlBackup.getUsername() + "' --host='" + sqlBackup.getHost()+ "' --api_token='" + sqlBackup.getPassword() + "' "+sqlBackup.getDatabase() + " > " + filename_zip;
+					executeCmd = this.machine.mysql_dump + " --user='" + sqlBackup.getUsername() + "' --host='" + sqlBackup.getHost()+ "' --api_token='" + sqlBackup.getPassword() + "' "+sqlBackup.getDatabase() + " > " + filename_zip;
 					this.execShellCmd(executeCmd); 					
 				}
 				else {
@@ -181,7 +179,7 @@ public class Schedule {
 					conn.setAutoCommit(true);					
 					Statement select = conn.createStatement();
 					select.executeQuery("BACKUP DATABASE " + sqlBackup.getDatabase() + " TO DISK='" + filename_zip+"'");
-					conn.close();					
+					conn.close();
 				}
 
 				String filename_zip_name = filename_zip.replaceAll(file_separator,"_")+".zip";
