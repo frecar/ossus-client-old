@@ -4,6 +4,7 @@ import backupclient.commons.Machine;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -162,9 +163,10 @@ public class Schedule {
 			String folder_zip = tmp_folder + sqlBackup.getDatabase() + file_separator;
 			File f = new File(folder_zip);
 
+			String filename_zip = "";
+
 			try{
 				f.mkdirs();
-				String filename_zip;
 				if(sqlBackup.getType().equals("mysql")) {
 					filename_zip = folder_zip + sqlBackup.getDatabase() + ".sql";
 					String executeCmd = "";
@@ -178,18 +180,29 @@ public class Schedule {
 					conn = DriverManager.getConnection("jdbc:sqlserver://" + sqlBackup.getHost() + "; portNumber=" + sqlBackup.getPort() +"; databaseName="+sqlBackup.getDatabase(), sqlBackup.getUsername(), sqlBackup.getPassword());
 					conn.setAutoCommit(true);					
 					Statement select = conn.createStatement();
+
 					select.executeQuery("BACKUP DATABASE " + sqlBackup.getDatabase() + " TO DISK='" + filename_zip+"'");
 					conn.close();
 				}
-
-				String filename_zip_name = filename_zip.replaceAll(file_separator,"_")+".zip";
-				Zipper.zipDir(tmp_folder+filename_zip_name, folder_zip, machine);
-				ftpStorage.upload(this.upload_path, tmp_folder+filename_zip_name, 0);
 			}
-			catch(Exception e)
+			
+			catch(SQLException e)
 			{
+				System.out.println(e.getMessage());
+			} catch (ClassNotFoundException e) {
+				this.machine.log_error(e.getMessage());
+			} 
+			
+			String filename_zip_name = filename_zip.replace(file_separator, "_")+".zip";
+									
+			try {
+				Zipper.zipDir(filename_zip_name, folder_zip, machine);
+			} catch (Exception e) {
 				this.machine.log_error(e.getMessage());
 			}
+			
+			ftpStorage.upload(this.upload_path, filename_zip_name, 0);
+			
 		}
 
 		this.setRunning_backup(false);
