@@ -32,6 +32,11 @@ public class Installer {
         inputFileMap.get("Windows 2003").put("amd64", "sigar-amd64-winnt.dll");
         outFileMap.put("Windows 2003", "C:\\WINDOWS\\system32\\");
 
+        inputFileMap.put("Windows Server 2008", new HashMap<String, String>());
+        inputFileMap.get("Windows Server 2008").put("x86", "sigar-x86-winnt.dll");
+        inputFileMap.get("Windows Server 2008").put("amd64", "sigar-amd64-winnt.dll");
+        outFileMap.put("Windows Server 2008", "C:\\WINDOWS\\system32\\");
+
     }
 
     private String inputFileName;
