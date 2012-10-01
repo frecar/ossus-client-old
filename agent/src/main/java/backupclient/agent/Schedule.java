@@ -181,6 +181,8 @@ public class Schedule {
 					conn.setAutoCommit(true);					
 					Statement select = conn.createStatement();
 
+					System.out.println(filename_zip);
+					
 					select.executeQuery("BACKUP DATABASE " + sqlBackup.getDatabase() + " TO DISK='" + filename_zip+"'");
 					conn.close();			
 				}
