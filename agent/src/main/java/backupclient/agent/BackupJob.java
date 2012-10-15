@@ -22,7 +22,7 @@ public class BackupJob {
     }
 
     private void getSchedules() {
-        List<JSONObject> json_list = machine.apiHandler.get_api_data("machines/" + machine.machine_id + "/schedules/");
+        List<JSONObject> json_list = machine.apiHandler.get_api_data("machines/" + machine.id + "/schedules/");
         JSONArray jsonArray = (JSONArray) json_list.get(0).get("schedules");
         List<JSONObject> schedules = new ArrayList<JSONObject>();
 

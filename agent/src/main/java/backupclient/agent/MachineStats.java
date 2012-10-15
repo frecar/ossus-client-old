@@ -69,6 +69,6 @@ public class MachineStats {
 		
 		map.put("load_average", ""+Math.round(s[0]*100)/100.0);
 
-		this.machine.apiHandler.set_api_data("machines/"+this.machine.machine_id+"/create_stats/", map);
+		this.machine.apiHandler.set_api_data("machines/"+this.machine.id+"/create_stats/", map);
 	}
 }

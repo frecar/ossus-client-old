@@ -123,7 +123,7 @@ public class Schedule {
 		map.put("schedule_id", "" + this.id);
 		map.put("time_started", start);
 		map.put("time_ended", end);
-		this.machine.apiHandler.set_api_data("backups/"+this.machine.machine_id+"/create_backup/", map);
+		this.machine.apiHandler.set_api_data("backups/"+this.machine.id+"/create_backup/", map);
     }
 	
 	public void runBackup() {
