@@ -2,7 +2,6 @@ package backupclient.agent;
 
 import backupclient.commons.CrossProcessLock;
 import backupclient.commons.Machine;
-import backupclient.commons.XMLHandler;
 import backupclient.install.Installer;
 
 import java.io.IOException;
@@ -18,8 +17,8 @@ public class Agent {
             return; // TODO log this?
         }
 
-        String settingsLocation = args.length > 0 ? args[0] : "settings.xml";
-        Machine machine = Machine.buildFromXmlSettings(new XMLHandler(settingsLocation));
+        String settingsLocation = args.length > 0 ? args[0] : "settings.json";
+        Machine machine = Machine.buildFromSettings(settingsLocation);
 
         if (machine.run_install) {
             try {

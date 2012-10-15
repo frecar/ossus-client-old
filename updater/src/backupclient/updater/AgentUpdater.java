@@ -55,8 +55,9 @@ public class AgentUpdater extends GenericUpdater {
         boolean lock = CrossProcessLock.instance.tryLock(0);
         if (!lock) return; // TODO log?
 
-        String settingsLocation = args.length > 0 ? args[0] : "settings.xml";
-        Machine machine = Machine.buildFromXmlSettings(new XMLHandler(settingsLocation));
+        String settingsLocation = args.length > 0 ? args[0] : "settings.json";
+        Machine machine = Machine.buildFromSettings(settingsLocation);
+
         new AgentUpdater(machine).run();
     }
 }

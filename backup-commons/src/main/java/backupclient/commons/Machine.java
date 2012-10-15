@@ -1,7 +1,11 @@
 package backupclient.commons;
 
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.text.ParseException;
 import java.util.*;
 
@@ -79,22 +83,33 @@ public class Machine {
 
         log_info("Current agent version: FocusBackup " + current_agent_version);
         log_info("Current updater version: FocusBackup " + current_updater_version);
+
 	}
-    
-    public static Machine buildFromXmlSettings(XMLHandler xmlHandler) {
+
+    public static Machine buildFromSettings(String settingsLocation) {
+
         Map<String, String> settings = new HashMap<String, String>();
 
-        settings.put("machine_id", xmlHandler.get_value("machine", "machine_id"));
-        settings.put("server_ip", xmlHandler.get_value("machine", "server_ip"));
-        settings.put("api_user", xmlHandler.get_value("machine", "api_user"));
-        settings.put("api_token", xmlHandler.get_value("machine", "api_token"));
-        settings.put("force_action", xmlHandler.get_value("machine", "force_action"));
-        settings.put("local_temp_folder", xmlHandler.get_value("machine", "local_temp_folder"));
-        settings.put("os_system", xmlHandler.get_value("machine", "os_system"));
-        settings.put("mysql_dump", xmlHandler.get_value("machine", "mysql_dump"));
-        settings.put("downloads_client", xmlHandler.get_value("machine", "downloads_client"));
-        settings.put("agent_folder", xmlHandler.get_value("machine", "agent_folder"));
-        
+        JSONParser parser = new JSONParser();
+
+        try {
+
+            Object obj = parser.parse(new FileReader(settingsLocation));
+            JSONObject jsonObject = (JSONObject) obj;
+
+            settings.put("machine_id", (String) jsonObject.get("machine_id"));
+            settings.put("server_ip", (String) jsonObject.get("server_ip"));
+            settings.put("api_user", (String) jsonObject.get("api_user"));
+            settings.put("api_token", (String) jsonObject.get("api_token"));
+            settings.put("force_action", (String) jsonObject.get("force_action"));
+            settings.put("local_temp_folder", (String) jsonObject.get("local_temp_folder"));
+            settings.put("mysql_dump", (String) jsonObject.get("mysql_dump"));
+            settings.put("agent_folder", (String) jsonObject.get("agent_folder"));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         try {
             return new Machine(settings);
         } catch (ParseException e) {
@@ -102,7 +117,6 @@ public class Machine {
             return null; // TODO dont return null here, throw it
         }
     }
-
 
     public Version get_current_agent_version() {
         return current_agent_version;

@@ -5,6 +5,7 @@ import org.json.simple.JSONObject;
 public class Version {
 
     public final String name, updater_link, agent_link, id;
+
     public Version(String id, String name, String update_link, String agent_link) {
         this.id = id;
         this.name = name;
@@ -23,7 +24,9 @@ public class Version {
         } catch (NullPointerException e) {
             machine.log_error("Error getting info about the Client version");
         }
+
         return null;
+
     }
     
     @Override
