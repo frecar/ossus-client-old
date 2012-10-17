@@ -11,14 +11,18 @@ public class Agent {
 
     public static void main(String[] args) throws ParseException {
 
+
+        String settingsLocation = args.length > 0 ? args[0] : "settings.json";
+        Machine machine = Machine.buildFromSettings(settingsLocation);
+
+        MachineStats machinestats = new MachineStats(machine);
+        machinestats.save();
+
         boolean update_lock = CrossProcessLock.instance.tryLock(0);
         if (!update_lock) {
             System.out.println("!update_lock");
             return; // TODO log this?
         }
-
-        String settingsLocation = args.length > 0 ? args[0] : "settings.json";
-        Machine machine = Machine.buildFromSettings(settingsLocation);
 
         if (machine.run_install) {
             try {
@@ -32,7 +36,6 @@ public class Agent {
         new Thread(new Updater(machine)).start();
         new BackupJob(machine).runBackup();
 
-        MachineStats machinestats = new MachineStats(machine);
-        machinestats.save();
+
     }
 }

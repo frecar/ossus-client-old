@@ -175,27 +175,27 @@ public class Schedule {
 				}
 				else {
 					filename_zip = folder_zip + sqlBackup.getDatabase() + ".bak";
-					Connection conn;	
-					Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");	
-					conn = DriverManager.getConnection("jdbc:sqlserver://" + sqlBackup.getHost() + "; portNumber=" + sqlBackup.getPort() +"; databaseName="+sqlBackup.getDatabase(), sqlBackup.getUsername(), sqlBackup.getPassword());
+					Connection conn;
+
+                    Class.forName("net.sourceforge.jtds.jdbc.Driver");
+
+                    conn = DriverManager.getConnection("jdbc:jtds:sqlserver://" + sqlBackup.getHost() + "; portNumber=" + sqlBackup.getPort() + "; databaseName=" + sqlBackup.getDatabase(), sqlBackup.getUsername(), sqlBackup.getPassword());
 					conn.setAutoCommit(true);					
 					Statement select = conn.createStatement();
 
-					System.out.println(filename_zip);
-					
 					select.executeQuery("BACKUP DATABASE " + sqlBackup.getDatabase() + " TO DISK='" + filename_zip+"'");
 					conn.close();
 				}
 			}
-			
+
 			catch(SQLException e)
 			{
 				System.out.println(e.getMessage());
-			} catch (ClassNotFoundException e) {
-				this.machine.log_error(e.getMessage());
-			} 
-			
-			String filename_zip_name = filename_zip.replace(file_separator, "_")+".zip";
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+
+            String filename_zip_name = filename_zip.replace(file_separator, "_")+".zip";
 									
 			try {
 				Zipper.zipDir(filename_zip_name, folder_zip, machine);
@@ -211,7 +211,7 @@ public class Schedule {
 		this.save();
 		
 		this.createBackupEntry(start, this.getDateTime());
-		
+
 	}
 
 	public void execShellCmd(String cmd) {

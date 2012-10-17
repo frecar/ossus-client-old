@@ -61,7 +61,6 @@ public class BackupJob {
             schedule.set_next_backup_time(next_backup_time);
 
             JSONObject storage = ((JSONObject) obj.get("storage"));
-
             schedule.setStorage(new FTPStorage(machine, (String) storage.get("host"), (String) storage.get("username"), (String) storage.get("password"), (String) storage.get("folder")));
             schedule.setUpload_path(storage.get("folder") + "/" + storage.get("current_day_folder_path"));
 
@@ -113,3 +112,4 @@ public class BackupJob {
         }
     }
 }
+
