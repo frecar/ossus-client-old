@@ -2,6 +2,7 @@ package backupclient.agent;
 
 import backupclient.commons.Machine;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -153,6 +154,12 @@ public class Schedule {
 				ftpStorage.upload(this.upload_path, tmp_folder + filename_zip, 0);
 				this.machine.log_info("Upload of " + filename_zip + " done");
 
+                try {
+                    file.delete();
+                } catch (Exception e) {
+                    this.machine.log_error(e.getMessage());
+                }
+
 			} catch (Exception e) {
 			    this.machine.log_error(e.getMessage());
 			}
@@ -170,8 +177,8 @@ public class Schedule {
 				if(sqlBackup.getType().equals("mysql")) {
 					filename_zip = folder_zip + sqlBackup.getDatabase() + ".sql";
 					String executeCmd = "";
-					executeCmd = this.machine.mysql_dump + " --user='" + sqlBackup.getUsername() + "' --host='" + sqlBackup.getHost()+ "' --api_token='" + sqlBackup.getPassword() + "' "+sqlBackup.getDatabase() + " > " + filename_zip;
-					this.execShellCmd(executeCmd); 					
+					executeCmd = this.machine.mysql_dump + " --user='" + sqlBackup.getUsername() + "' --host='" + sqlBackup.getHost()+ "' --password='" + sqlBackup.getPassword() + "' "+sqlBackup.getDatabase() + " > " + filename_zip;
+                    this.execShellCmd(executeCmd);
 				}
 				else {
 					filename_zip = folder_zip + sqlBackup.getDatabase() + ".bak";
@@ -204,8 +211,14 @@ public class Schedule {
 			}
 			
 			ftpStorage.upload(this.upload_path, filename_zip_name, 0);
-			
-		}
+
+            try {
+                new java.io.File(filename_zip_name).delete();
+            } catch (Exception e) {
+                this.machine.log_error(e.getMessage());
+            }
+
+        }
 
 		this.setRunning_backup(false);
 		this.save();
