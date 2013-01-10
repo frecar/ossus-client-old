@@ -18,8 +18,7 @@ public class Machine {
     public final Version selected_updater_version;
     public final Version selected_agent_version;
     public final boolean auto_update;
-    
-    
+
 	public final String server_ip;
     public final String api_user;
     public final String api_token;
@@ -67,7 +66,7 @@ public class Machine {
 
 		this.log = new Log(apiHandler, this.id);
 
-		this.log_info("Connecting to " + server_ip);
+		//this.log_info("Connecting to " + server_ip);
 		
 		List<JSONObject> obj = apiHandler.get_api_data("machines/"+this.id);
 		JSONObject data = (JSONObject)obj.get(0).get("machine");
@@ -83,9 +82,9 @@ public class Machine {
 
         this.set_machine_external_ip(this.getExternalIP());
 
-        log_info("Current agent version: FocusBackup " + current_agent_version);
-        log_info("Current updater version: FocusBackup " + current_updater_version);
-        log_info("Current external ip: " + this.getExternalIP());
+        //log_info("Current agent version: FocusBackup " + current_agent_version);
+        //log_info("Current updater version: FocusBackup " + current_updater_version);
+        //log_info("Current external ip: " + this.getExternalIP());
 
     }
 

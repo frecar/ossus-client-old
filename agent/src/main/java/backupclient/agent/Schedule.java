@@ -25,6 +25,7 @@ public class Schedule {
 	private Boolean running_backup;
 	private Boolean running_restore;
 	private String current_version_in_loop;
+    private String versions_count;
 	private String upload_path;
 	private Date get_next_backup_time;
 
@@ -70,6 +71,10 @@ public class Schedule {
 		this.current_version_in_loop = string;
 	}
 
+    public void setVersionsCount(String string) {
+        this.versions_count = string;
+    }
+
 	public String getUpload_path() {
 		return upload_path;
 	}
@@ -96,7 +101,7 @@ public class Schedule {
 
 	private int find_next_current_version_in_loop() {
 
-		if(Integer.parseInt(this.current_version_in_loop) >= 10) {
+		if(Integer.parseInt(this.current_version_in_loop) >= Integer.parseInt(this.versions_count)) {
 			return 1;
 		}
 
@@ -124,7 +129,9 @@ public class Schedule {
 		map.put("schedule_id", "" + this.id);
 		map.put("time_started", start);
 		map.put("time_ended", end);
-		this.machine.apiHandler.set_api_data("backups/"+this.machine.id+"/create_backup/", map);
+        map.put("upload_path", this.upload_path);
+
+        this.machine.apiHandler.set_api_data("backups/"+this.machine.id+"/create_backup/", map);
     }
 	
 	public void runBackup() {
@@ -213,6 +220,7 @@ public class Schedule {
 			ftpStorage.upload(this.upload_path, filename_zip_name, 0);
 
             try {
+                new java.io.File(filename_zip).delete();
                 new java.io.File(filename_zip_name).delete();
             } catch (Exception e) {
                 this.machine.log_error(e.getMessage());
@@ -221,9 +229,10 @@ public class Schedule {
         }
 
 		this.setRunning_backup(false);
-		this.save();
-		
-		this.createBackupEntry(start, this.getDateTime());
+
+        this.createBackupEntry(start, this.getDateTime());
+
+        this.save();
 
 	}
 

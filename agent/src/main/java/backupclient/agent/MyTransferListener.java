@@ -41,7 +41,7 @@ public class MyTransferListener implements FTPDataTransferListener {
 
 			long ms = new Date().getTime() - this.datetimeStarted.getTime();
 
-			if(ms>=1000) {
+			if(ms>=1000 && (percent % 10 == 0 || percent == 1)) {
 				ms /= 1000;
 				this.machine.log_info(percent + " % completed. " + (totalBytesUploaded/1024)/ms + " kb/s");				
 			}

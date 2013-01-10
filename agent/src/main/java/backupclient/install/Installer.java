@@ -27,6 +27,16 @@ public class Installer {
         inputFileMap.get("Windows XP").put("amd64", "sigar-amd64-winnt.dll");
         outFileMap.put("Windows XP", "C:\\WINDOWS\\system32\\");
 
+        inputFileMap.put("Windows 7", new HashMap<String, String>());
+        inputFileMap.get("Windows 7").put("x86", "sigar-x86-winnt.dll");
+        inputFileMap.get("Windows 7").put("amd64", "sigar-amd64-winnt.dll");
+        outFileMap.put("Windows 7", "C:\\WINDOWS\\system32\\");
+
+        inputFileMap.put("Windows Vista", new HashMap<String, String>());
+        inputFileMap.get("Windows Vista").put("x86", "sigar-x86-winnt.dll");
+        inputFileMap.get("Windows Vista").put("amd64", "sigar-amd64-winnt.dll");
+        outFileMap.put("Windows Vista", "C:\\WINDOWS\\system32\\");
+
         inputFileMap.put("Windows 2003", new HashMap<String, String>());
         inputFileMap.get("Windows 2003").put("x86", "sigar-x86-winnt.dll");
         inputFileMap.get("Windows 2003").put("amd64", "sigar-amd64-winnt.dll");
