@@ -146,6 +146,7 @@ public class Schedule {
 		String file_separator = System.getProperty("file.separator");
         String tmp_folder = machine.get_local_temp_folder();
 
+
         for (FolderBackup folderBackup : this.getFolderBackups()) {
 
             String filename_zip = folderBackup.getPath().replaceAll("\\" + file_separator,"_").replaceAll("\\:","_").replaceAll(" ","-")+".zip";
