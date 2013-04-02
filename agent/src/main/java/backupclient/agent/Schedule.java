@@ -185,13 +185,30 @@ public class Schedule {
 				if(sqlBackup.getType().equals("mysql")) {
 					filename_zip = folder_zip + sqlBackup.getDatabase() + ".sql";
 					String executeCmd = "";
+
+                    //Delete old sql file if exists
+                    File file_bak = new File(filename_zip);
+                    if(file_bak.exists()) {
+                        if(!file_bak.delete()) {
+                            machine.log_error("Error deleting old sql file");
+                        }
+                    }
+
 					executeCmd = this.machine.mysql_dump + " --user='" + sqlBackup.getUsername() + "' --host='" + sqlBackup.getHost()+ "' --password='" + sqlBackup.getPassword() + "' "+sqlBackup.getDatabase() + " > " + filename_zip;
                     this.execShellCmd(executeCmd);
 				}
 				else {
 					filename_zip = folder_zip + sqlBackup.getDatabase() + ".bak";
-					Connection conn;
 
+                    //Delete old bak file if exists
+                    File file_bak = new File(filename_zip);
+                    if(file_bak.exists()) {
+                        if(!file_bak.delete()) {
+                            machine.log_error("Error deleting old bak file");
+                        }
+                    }
+
+                    Connection conn;
                     Class.forName("net.sourceforge.jtds.jdbc.Driver");
 
                     conn = DriverManager.getConnection("jdbc:jtds:sqlserver://" + sqlBackup.getHost() + "; portNumber=" + sqlBackup.getPort() + "; databaseName=" + sqlBackup.getDatabase(), sqlBackup.getUsername(), sqlBackup.getPassword());
@@ -205,8 +222,9 @@ public class Schedule {
 
 			catch(SQLException e)
 			{
-				System.out.println(e.getMessage());
+				machine.log_error(e.getMessage());
             } catch (ClassNotFoundException e) {
+                machine.log_error(e.getMessage());
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
 
@@ -222,6 +240,11 @@ public class Schedule {
 
             try {
                 new java.io.File(filename_zip).delete();
+            } catch (Exception e) {
+                this.machine.log_error(e.getMessage());
+            }
+
+            try {
                 new java.io.File(filename_zip_name).delete();
             } catch (Exception e) {
                 this.machine.log_error(e.getMessage());
