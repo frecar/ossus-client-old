@@ -11,21 +11,22 @@ public class Agent {
 
     public static void main(String[] args) throws ParseException {
 
-        boolean update_lock = CrossProcessLock.instance.tryLock(0);
-        if (!update_lock) {
-            System.out.println("!update_lock");
-            return; // TODO log this?
-        }
-
         String settingsLocation = args.length > 0 ? args[0] : "settings.json";
         Machine machine = Machine.buildFromSettings(settingsLocation);
+
+
+        boolean update_lock = CrossProcessLock.instance.tryLock(0);
+        if (!update_lock) {
+            machine.log_warning("Machine busy, update lock!");
+            return; // TODO log this?
+        }
 
         if (machine.run_install) {
             try {
                 new Installer().runInstall();
             } catch (IOException e) {
                 e.printStackTrace();
-                System.out.println("Error running install");
+                machine.log_error("Error running install");
             }
         }
 

@@ -217,6 +217,7 @@ public class Schedule {
 
 					select.executeQuery("BACKUP DATABASE " + sqlBackup.getDatabase() + " TO DISK='" + filename_zip+"'");
 					conn.close();
+
 				}
 			}
 

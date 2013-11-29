@@ -78,7 +78,7 @@ public class BackupJob {
                     folderBackup.setPath(((JSONObject) folderBackupJson).get("local_folder_path").toString());
                     schedule.addFolderBackup(folderBackup);
                 }
-            } else machine.log_info("No folder backups...");
+            } else machine.log_info("No folders to backup");
 
             if (sqlBackups != null) {
                 for (Object sqlBackupJson : sqlBackups) {
@@ -92,10 +92,9 @@ public class BackupJob {
                     sqlBackup.setPort(((JSONObject) sqlBackupJson).get("port").toString());
                     schedule.addSqlBackup(sqlBackup);
                 }
-            } else machine.log_info("No sql backups");
+            } else machine.log_info("No sql databases to backup");
 
             this.schedules.add(schedule);
-
         }
     }
 
@@ -104,6 +103,7 @@ public class BackupJob {
         if (machine.is_busy && !machine.force_action) {
             machine.log_info("Machine busy");
         } else {
+            machine.log_info("I am alive!");
             for (Schedule schedule : this.schedules) {
                 if (new Date().after(schedule.get_next_backup_time())) {
                     machine.log_info("Running schedule " + schedule.getName());
