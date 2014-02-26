@@ -2,7 +2,6 @@ package backupclient.agent;
 
 import backupclient.commons.Machine;
 
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -17,6 +16,7 @@ import java.util.List;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+
 
 public class Schedule {
 
@@ -36,7 +36,8 @@ public class Schedule {
 	private List<SQLBackup> sqlBackups = new ArrayList<SQLBackup>();
 
 	public String getId() {
-		return id;
+
+        return id;
 	}
 
 	public void setId(String id) {

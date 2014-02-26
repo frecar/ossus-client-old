@@ -50,13 +50,13 @@ public class AgentUpdater extends GenericUpdater {
 
     public static void main(String... args) {
 
-        System.out.println("Updater!!!");
-
-        boolean lock = CrossProcessLock.instance.tryLock(0);
-        if (!lock) return; // TODO log?
-
         String settingsLocation = args.length > 0 ? args[0] : "settings.json";
         Machine machine = Machine.buildFromSettings(settingsLocation);
+
+        if (machine.is_busy) {
+            machine.log_warning("Machine busy, wait until next run!");
+            return;
+        }
 
         new AgentUpdater(machine).run();
     }

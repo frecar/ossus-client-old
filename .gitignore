@@ -9,3 +9,4 @@ settings.xml
 libs/.DS_Store
 Agent.jar
 Updater.jar
+settings.json

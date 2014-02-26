@@ -14,11 +14,9 @@ public class Agent {
         String settingsLocation = args.length > 0 ? args[0] : "settings.json";
         Machine machine = Machine.buildFromSettings(settingsLocation);
 
-
-        boolean update_lock = CrossProcessLock.instance.tryLock(0);
-        if (!update_lock) {
-            machine.log_warning("Machine busy, update lock!");
-            return; // TODO log this?
+        if (machine.is_busy) {
+            machine.log_warning("Machine busy, wait until next run!");
+            return;
         }
 
         if (machine.run_install) {
