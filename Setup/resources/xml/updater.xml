@@ -43,7 +43,7 @@
     <Actions Context="Author">
         <Exec>
             <Command>javaw</Command>
-            <Arguments>-jar c:\focus24\Agent.jar c:\focus24\settings.json</Arguments>
+            <Arguments>-jar c:\focus24\Updater.jar c:\focus24\settings.json</Arguments>
         </Exec>
     </Actions>
 </Task>
