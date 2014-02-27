@@ -56,7 +56,6 @@ public class Installer {
         System.out.println("starting install");
         checkOS();
         copyFile();
-
         return true;
     }
 

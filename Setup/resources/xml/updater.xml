@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+    <Triggers>
+        <TimeTrigger>
+            <Repetition>
+                <Interval>PT3M</Interval>
+                <StopAtDurationEnd>false</StopAtDurationEnd>
+            </Repetition>
+            <StartBoundary>2014-02-26T17:21:00</StartBoundary>
+            <Enabled>true</Enabled>
+        </TimeTrigger>
+    </Triggers>
+    <Principals>
+        <Principal id="Author">
+            <UserId>Administrator</UserId>
+            <LogonType>Password</LogonType>
+            <RunLevel>LeastPrivilege</RunLevel>
+        </Principal>
+    </Principals>
+    <Settings>
+        <MultipleInstancesPolicy>Parallel</MultipleInstancesPolicy>
+        <DisallowStartIfOnBatteries>true</DisallowStartIfOnBatteries>
+        <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+        <AllowHardTerminate>true</AllowHardTerminate>
+        <StartWhenAvailable>true</StartWhenAvailable>
+        <RunOnlyIfNetworkAvailable>false</RunOnlyIfNetworkAvailable>
+        <IdleSettings>
+            <StopOnIdleEnd>true</StopOnIdleEnd>
+            <RestartOnIdle>false</RestartOnIdle>
+        </IdleSettings>
+        <AllowStartOnDemand>true</AllowStartOnDemand>
+        <Enabled>true</Enabled>
+        <Hidden>false</Hidden>
+        <RunOnlyIfIdle>false</RunOnlyIfIdle>
+        <WakeToRun>false</WakeToRun>
+        <ExecutionTimeLimit>P3D</ExecutionTimeLimit>
+        <Priority>7</Priority>
+        <RestartOnFailure>
+            <Interval>PT15M</Interval>
+            <Count>10</Count>
+        </RestartOnFailure>
+    </Settings>
+    <Actions Context="Author">
+        <Exec>
+            <Command>javaw</Command>
+            <Arguments>-jar c:\focus24\Agent.jar c:\focus24\settings.json</Arguments>
+        </Exec>
+    </Actions>
+</Task>

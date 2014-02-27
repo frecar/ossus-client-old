@@ -15,8 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 
-class Main extends JFrame implements ActionListener
-{
+class Main extends JFrame implements ActionListener {
 
     String agent_folder;
     String server_ip;
@@ -31,10 +30,10 @@ class Main extends JFrame implements ActionListener
 
         String url = "";
 
-        if(filename.equals("Agent.jar")) {
-            url = server_ip+"download_current_agent";
+        if (filename.equals("Agent.jar")) {
+            url = server_ip + "download_current_agent";
         } else {
-            url = server_ip+"download_current_updater";
+            url = server_ip + "download_current_updater";
         }
 
         try {
@@ -45,6 +44,48 @@ class Main extends JFrame implements ActionListener
         }
 
         return true;
+    }
+
+
+    private void downloadFromUrl(String urlString, String filename) throws MalformedURLException, IOException {
+        BufferedInputStream in = null;
+        FileOutputStream fout = null;
+        try {
+            in = new BufferedInputStream(new URL(urlString).openStream());
+            fout = new FileOutputStream(filename);
+
+            byte data[] = new byte[1024];
+            int count;
+            while ((count = in.read(data, 0, 1024)) != -1) {
+                fout.write(data, 0, count);
+            }
+        } finally {
+            if (in != null)
+                in.close();
+            if (fout != null)
+                fout.close();
+        }
+    }
+
+    private void copyFile(String outputFileName, String inputFileName) throws IOException{
+
+        if(!outputFileName.equals("") && !inputFileName.equals(""))  {
+
+            OutputStream out = new FileOutputStream(outputFileName);
+            InputStream in = Main.class.getResource(inputFileName).openStream();
+            byte[] buff = new byte[4096];
+            int read;
+            while ((read = in.read(buff)) > 0) {
+                out.write(buff, 0, read);
+            }
+
+            in.close();
+            out.close();
+
+            System.out.println("xml file copied to " + outputFileName);
+
+        }
+
     }
 
     private void readAndSaveJar(URL jar_url, String filename) throws IOException {
@@ -68,14 +109,13 @@ class Main extends JFrame implements ActionListener
 
     private BufferedOutputStream create_updater_file(String filename) throws IOException {
 
-        File jar_file = new File(agent_folder+filename);
+        File jar_file = new File(agent_folder + filename);
 
         if (jar_file.exists()) {
             new RandomAccessFile(jar_file, "rw").setLength(0);
-        }
-        else {
+        } else {
             boolean created = jar_file.createNewFile();
-            if (!created) throw new IOException("Could not create file " + jar_file );
+            if (!created) throw new IOException("Could not create file " + jar_file);
         }
 
         return new BufferedOutputStream(new FileOutputStream(jar_file));
@@ -85,7 +125,7 @@ class Main extends JFrame implements ActionListener
 
         List<JSONObject> list = new ArrayList<JSONObject>();
 
-        String u = host+"/api/machines/" + id + "/settings/";
+        String u = host + "/api/machines/" + id + "/settings/";
 
         StringBuilder result = new StringBuilder();
 
@@ -132,7 +172,7 @@ class Main extends JFrame implements ActionListener
 
         BufferedWriter out = null;
         try {
-            out = new BufferedWriter(new FileWriter(agent_folder+file_separator+"settings.json"));
+            out = new BufferedWriter(new FileWriter(agent_folder + file_separator + "settings.json"));
             out.write(result.toString());
             out.close();
 
@@ -143,17 +183,24 @@ class Main extends JFrame implements ActionListener
         download("Agent.jar");
         download("Updater.jar");
 
+        try {
+            copyFile(agent_folder + "agent.xml", "/xml/agent.xml");
+            copyFile(agent_folder + "updater.xml", "/xml/updater.xml");
+        }
+        catch(IOException e) {
+            e.printStackTrace();
+        }
+
         return "OK";
 
     }
 
     JButton SUBMIT;
     JPanel panel;
-    JLabel label1,label2, label3, label4, label5, label6;
-    final JTextField  text1,text2, text3, text4, text5, text6;
+    JLabel label1, label2, label3, label4, label5, label6;
+    final JTextField text1, text2, text3, text4, text5, text6;
 
-    Main()
-    {
+    Main() {
         label1 = new JLabel();
         label1.setText("Local admin user:");
         text1 = new JTextField(15);
@@ -180,9 +227,9 @@ class Main extends JFrame implements ActionListener
         text6 = new JPasswordField(15);
 
 
-        SUBMIT=new JButton("INSTALL");
+        SUBMIT = new JButton("INSTALL");
 
-        panel=new JPanel(new GridLayout(7,1));
+        panel = new JPanel(new GridLayout(7, 1));
         panel.add(label1);
         panel.add(text1);
         panel.add(label2);
@@ -197,15 +244,13 @@ class Main extends JFrame implements ActionListener
         panel.add(text6);
         panel.add(SUBMIT);
 
-        add(panel,BorderLayout.CENTER);
+        add(panel, BorderLayout.CENTER);
         SUBMIT.addActionListener(this);
         setTitle("INSTALLATION");
     }
 
 
-
-    public void actionPerformed(ActionEvent ae)
-    {
+    public void actionPerformed(ActionEvent ae) {
 
         String localAdminUser = text1.getText();
         String localAdminPassword = text2.getText();
@@ -213,23 +258,23 @@ class Main extends JFrame implements ActionListener
         String id = text3.getText();
         String host = text4.getText();
 
-        String username=text5.getText();
-        String password=text6.getText();
+        String username = text5.getText();
+        String password = text6.getText();
 
         getApiTokenAndUser(host, id, username, password);
-
 
         try {
 
             System.out.println("C:\\WINDOWS\\system32\\schtasks.exe /create /ru " + localAdminUser + " /rp " + localAdminPassword + " " +
-                    "/tn \"Focus24Agent\" /tr \"javaw -jar " + agent_folder + "Agent.jar " + agent_folder + "settings.json\" /sc minute /mo 10");
+                    "/tn \"Focus24Agent\" /XML " + agent_folder + "agent.xml");
 
             Runtime.getRuntime().exec("C:\\WINDOWS\\system32\\schtasks.exe /create /ru " + localAdminUser + " /rp " + localAdminPassword + " " +
-                    "/tn \"Focus24Agent\" /tr \"javaw -jar " + agent_folder + "Agent.jar " + agent_folder + "settings.json\" /sc minute /mo 10");
-
+                    "/tn \"Focus24Agent\" /XML " + agent_folder + "agent.xml");
 
             Runtime.getRuntime().exec("C:\\WINDOWS\\system32\\schtasks.exe /create /ru " + localAdminUser + " /rp " + localAdminPassword + " " +
-                    "/tn \"Focus24Updater\" /tr \"javaw -jar " + agent_folder + "Updater.jar " + agent_folder + "settings.json\" /sc minute /mo 13");
+                    "/tn \"Focus24Agent\" /XML " + agent_folder + "updater.xml");
+
+            System.exit(0);
 
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
@@ -237,21 +282,19 @@ class Main extends JFrame implements ActionListener
 
     }
 }
-class MainRun
-{
-    public static void main(String arg[])
-    {
-        try
-        {
-            Main frame=new Main();
+
+class MainRun {
+    public static void main(String arg[]) {
+        try {
+            Main frame = new Main();
 
             frame.setTitle("Focus24");
             frame.setSize(300, 150);
             frame.setVisible(true);
             frame.setLocationRelativeTo(null);
             //frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
         }
-        catch(Exception e)
-        {JOptionPane.showMessageDialog(null, e.getMessage());}
     }
 }
