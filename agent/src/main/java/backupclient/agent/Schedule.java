@@ -57,6 +57,7 @@ public class Schedule {
 	}
 
 	public void setRunning_backup(Boolean running_backup) {
+        this.machine.log_info("Running backup " + this.name + " " + running_backup);
 		this.running_backup = running_backup;
 	}
 
@@ -125,12 +126,15 @@ public class Schedule {
 		return dateFormat.format(date);
 	}
 	
-	public void createBackupEntry(String start, String end) {
+	public void createBackupEntry(String start, String end, String file_name) {
 		HashMap<String, String> map = new HashMap<String, String>();
 		map.put("schedule_id", "" + this.id);
 		map.put("time_started", start);
 		map.put("time_ended", end);
         map.put("upload_path", this.upload_path);
+        map.put("file_name", file_name);
+
+        this.machine.log_info("Create backup entry " + this.name + " started at " + start + " file name " + file_name);
 
         this.machine.apiHandler.set_api_data("backups/"+this.machine.id+"/create_backup/", map);
     }
@@ -147,10 +151,11 @@ public class Schedule {
 		String file_separator = System.getProperty("file.separator");
         String tmp_folder = machine.get_local_temp_folder();
 
+        String filename_zip = "";
 
         for (FolderBackup folderBackup : this.getFolderBackups()) {
 
-            String filename_zip = folderBackup.getPath().replaceAll("\\" + file_separator,"_").replaceAll("\\:","_").replaceAll(" ","-")+".zip";
+            filename_zip = folderBackup.getPath().replaceAll("\\" + file_separator,"_").replaceAll("\\:","_").replaceAll(" ","-")+".zip";
 
             try {
 				this.machine.log_info("Zipping " + tmp_folder + filename_zip);
@@ -179,30 +184,31 @@ public class Schedule {
 			String folder_zip = tmp_folder + sqlBackup.getDatabase() + file_separator;
 			File f = new File(folder_zip);
 
-			String filename_zip = "";
+			String filename_backup_zip = "";
 
 			try{
 				f.mkdirs();
 				if(sqlBackup.getType().equals("mysql")) {
-					filename_zip = folder_zip + sqlBackup.getDatabase() + ".sql";
+					filename_backup_zip = folder_zip + sqlBackup.getDatabase() + ".sql";
 					String executeCmd = "";
 
                     //Delete old sql file if exists
-                    File file_bak = new File(filename_zip);
+                    File file_bak = new File(filename_backup_zip);
                     if(file_bak.exists()) {
                         if(!file_bak.delete()) {
                             machine.log_error("Error deleting old sql file");
                         }
                     }
 
-					executeCmd = this.machine.mysql_dump + " --user='" + sqlBackup.getUsername() + "' --host='" + sqlBackup.getHost()+ "' --password='" + sqlBackup.getPassword() + "' "+sqlBackup.getDatabase() + " > " + filename_zip;
+					executeCmd = this.machine.mysql_dump + " --single-transaction --user='" + sqlBackup.getUsername() + "' --host='" + sqlBackup.getHost()+ "' --password='" + sqlBackup.getPassword() + "' "+sqlBackup.getDatabase() + " > " + filename_backup_zip;
+                    System.out.println(executeCmd);
                     this.execShellCmd(executeCmd);
 				}
 				else {
-					filename_zip = folder_zip + sqlBackup.getDatabase() + ".bak";
+					filename_backup_zip = folder_zip + sqlBackup.getDatabase() + ".bak";
 
                     //Delete old bak file if exists
-                    File file_bak = new File(filename_zip);
+                    File file_bak = new File(filename_backup_zip);
                     if(file_bak.exists()) {
                         if(!file_bak.delete()) {
                             machine.log_error("Error deleting old bak file");
@@ -216,7 +222,7 @@ public class Schedule {
 					conn.setAutoCommit(true);					
 					Statement select = conn.createStatement();
 
-					select.executeQuery("BACKUP DATABASE " + sqlBackup.getDatabase() + " TO DISK='" + filename_zip+"'");
+					select.executeQuery("BACKUP DATABASE " + sqlBackup.getDatabase() + " TO DISK='" + filename_backup_zip+"'");
 					conn.close();
 
 				}
@@ -230,15 +236,17 @@ public class Schedule {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
 
-            String filename_zip_name = filename_zip.replace(file_separator, "_")+".zip";
-									
+            filename_zip = filename_backup_zip.replace(file_separator, "_")+".zip";
+            System.out.println(filename_zip);
+
 			try {
-				Zipper.zipDir(filename_zip_name, folder_zip, machine);
+                System.out.println(folder_zip);
+                Zipper.zipDir(filename_zip, folder_zip, machine);
 			} catch (Exception e) {
 				this.machine.log_error(e.getMessage());
 			}
 			
-			ftpStorage.upload(this.upload_path, filename_zip_name, 0);
+			ftpStorage.upload(this.upload_path, filename_zip, 0);
 
             try {
                 new java.io.File(filename_zip).delete();
@@ -247,16 +255,15 @@ public class Schedule {
             }
 
             try {
-                new java.io.File(filename_zip_name).delete();
+                new java.io.File(filename_zip).delete();
             } catch (Exception e) {
                 this.machine.log_error(e.getMessage());
             }
-
         }
 
 		this.setRunning_backup(false);
 
-        this.createBackupEntry(start, this.getDateTime());
+        this.createBackupEntry(start, this.getDateTime(), filename_zip);
 
         this.save();
 
@@ -322,7 +329,11 @@ class FolderBackup {
 	}
 
 	public String getPath() {
-		return path;
+        if(!path.endsWith(System.getProperty("file.separator"))) {
+            path = path + System.getProperty("file.separator");
+        }
+
+        return path;
 	}
 
 	public void setPath(String path) {

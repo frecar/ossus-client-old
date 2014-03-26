@@ -25,7 +25,7 @@ public class MyTransferListener implements FTPDataTransferListener {
 	public void started() {
 		totalBytesUploaded = 0;
 		percentCompleted = 0;
-		this.machine.log_error("Transfer started");
+		this.machine.log_info("Transfer started");
 	}
 
 	public void transferred(int length) {

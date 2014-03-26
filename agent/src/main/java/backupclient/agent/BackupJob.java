@@ -100,18 +100,11 @@ public class BackupJob {
     }
 
     public void runBackup() {
-
-        if (machine.is_busy && !machine.force_action) {
-            machine.log_info("Machine busy");
-        } else {
-            machine.log_info("I am alive!");
-            for (Schedule schedule : this.schedules) {
-                if (new Date().after(schedule.get_next_backup_time())) {
-                    machine.log_info("Running schedule " + schedule.getName());
-                    schedule.runBackup();
-                }
+        for (Schedule schedule : this.schedules) {
+            if (new Date().after(schedule.get_next_backup_time())) {
+                machine.log_info("Running schedule " + schedule.getName());
+                schedule.runBackup();
             }
         }
     }
 }
-

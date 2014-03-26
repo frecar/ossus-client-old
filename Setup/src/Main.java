@@ -69,6 +69,8 @@ class Main extends JFrame implements ActionListener {
 
     private void copyFile(String outputFileName, String inputFileName) throws IOException{
 
+        System.out.println("Copying " + inputFileName + " to " + outputFileName);
+
         if(!outputFileName.equals("") && !inputFileName.equals(""))  {
 
             OutputStream out = new FileOutputStream(outputFileName);
@@ -121,7 +123,46 @@ class Main extends JFrame implements ActionListener {
         return new BufferedOutputStream(new FileOutputStream(jar_file));
     }
 
-    public String getApiTokenAndUser(String host, String id, String username, String password) {
+    public String cloneTemplate(String host, String name, String templateID, String username, String password) {
+
+        List<JSONObject> list = new ArrayList<JSONObject>();
+
+        String u = host + "/api/machines/" + templateID + "/clone/" + name;
+        StringBuilder result = new StringBuilder();
+
+        try {
+            u += "?" + URLEncoder.encode("datetime", "UTF-8") + "=" + URLEncoder.encode(this.getDateTime(), "UTF-8");
+            u += "&username=" + username + "&password=" + password;
+
+            URL url = new URL(u);
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            InputStream content = (InputStream) connection.getInputStream();
+            BufferedReader in = new BufferedReader(new InputStreamReader(content));
+            String line;
+
+            while ((line = in.readLine()) != null) {
+                result.append(line);
+            }
+
+            Object obj = JSONValue.parse(result.toString());
+            JSONObject machine = (JSONObject) ((JSONObject) obj).get("machine");
+
+            return String.valueOf(machine.get("id"));
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
+    }
+
+    public String downloadSettings(String host, String id, String username, String password) {
 
         List<JSONObject> list = new ArrayList<JSONObject>();
 
@@ -162,8 +203,6 @@ class Main extends JFrame implements ActionListener {
         agent_folder = (String) ((JSONObject) obj).get("agent_folder");
         server_ip = (String) ((JSONObject) obj).get("server_ip");
 
-        System.out.println(server_ip);
-
         String file_separator = System.getProperty("file.separator");
 
 
@@ -184,8 +223,11 @@ class Main extends JFrame implements ActionListener {
         download("Updater.jar");
 
         try {
-            copyFile(agent_folder + "agent.xml", "/xml/agent.xml");
-            copyFile(agent_folder + "updater.xml", "/xml/updater.xml");
+            copyFile(agent_folder + "start.bat", "/xml/start.bat");
+            copyFile(agent_folder + "start.vbs", "/xml/start.vbs");
+            //copyFile(agent_folder + "agent.xml", "/xml/agent.xml");
+            //copyFile(agent_folder + "agent.xml", "/xml/agent.xml");
+            //copyFile(agent_folder + "updater.xml", "/xml/updater.xml");
         }
         catch(IOException e) {
             e.printStackTrace();
@@ -197,8 +239,8 @@ class Main extends JFrame implements ActionListener {
 
     JButton SUBMIT;
     JPanel panel;
-    JLabel label1, label2, label3, label4, label5, label6;
-    final JTextField text1, text2, text3, text4, text5, text6;
+    JLabel label1, label2, label3, label4, label5, label6, label7;
+    final JTextField text1, text2, text3, text4, text5, text6, text7;
 
     Main() {
         label1 = new JLabel();
@@ -210,7 +252,7 @@ class Main extends JFrame implements ActionListener {
         text2 = new JPasswordField(15);
 
         label3 = new JLabel();
-        label3.setText("Machine ID:");
+        label3.setText("Template ID:");
         text3 = new JTextField(15);
 
         label4 = new JLabel();
@@ -226,10 +268,16 @@ class Main extends JFrame implements ActionListener {
         label6.setText("Focus24 password:");
         text6 = new JPasswordField(15);
 
+        label7 = new JLabel();
+        label7.setText("Machine: ");
+        text7 = new JTextField(20);
+
 
         SUBMIT = new JButton("INSTALL");
 
-        panel = new JPanel(new GridLayout(7, 1));
+        panel = new JPanel(new GridLayout(8, 1));
+        panel.add(label7);
+        panel.add(text7);
         panel.add(label1);
         panel.add(text1);
         panel.add(label2);
@@ -255,24 +303,44 @@ class Main extends JFrame implements ActionListener {
         String localAdminUser = text1.getText();
         String localAdminPassword = text2.getText();
 
-        String id = text3.getText();
+        String name = text7.getText();
+        String templateID = text3.getText();
         String host = text4.getText();
 
         String username = text5.getText();
         String password = text6.getText();
 
-        getApiTokenAndUser(host, id, username, password);
+
+        String id = cloneTemplate(host, name, templateID, username, password);
+
+        System.out.println(id);
+
+        System.out.println("C:\\WINDOWS\\system32\\schtasks.exe /create /ru " + localAdminUser + " /rp " + localAdminPassword + " " +
+                "/tn \"Focus24\" /tr \"" + agent_folder + "start.vbs \" /sc minute /mo 3");
+
+        downloadSettings(host, id, username, password);
 
         try {
 
+              /*
             System.out.println("C:\\WINDOWS\\system32\\schtasks.exe /create /ru " + localAdminUser + " /rp " + localAdminPassword + " " +
                     "/tn \"Focus24Agent\" /XML " + agent_folder + "agent.xml");
 
-            Runtime.getRuntime().exec("C:\\WINDOWS\\system32\\schtasks.exe /create /ru " + localAdminUser + " /rp " + localAdminPassword + " " +
+          Runtime.getRuntime().exec("C:\\WINDOWS\\system32\\schtasks.exe /create /ru " + localAdminUser + " /rp " + localAdminPassword + " " +
                     "/tn \"Focus24Agent\" /XML " + agent_folder + "agent.xml");
 
             Runtime.getRuntime().exec("C:\\WINDOWS\\system32\\schtasks.exe /create /ru " + localAdminUser + " /rp " + localAdminPassword + " " +
-                    "/tn \"Focus24Agent\" /XML " + agent_folder + "updater.xml");
+                    "/tn \"Focus24Updater\" /XML " + agent_folder + "updater.xml");
+             */
+
+            /*
+            Runtime.getRuntime().exec("C:\\WINDOWS\\system32\\schtasks.exe /create /ru " + localAdminUser + " /rp " + localAdminPassword + " " +
+                    "/tn \"Focus24\" /XML " + agent_folder + "start.xml");
+            */
+
+            Runtime.getRuntime().exec("C:\\WINDOWS\\system32\\schtasks.exe /create /ru " + localAdminUser + " /rp " + localAdminPassword + " " +
+                    "/tn \"Focus24\" /tr \"" + agent_folder + "start.vbs \" /sc minute /mo 3");
+
 
             System.exit(0);
 

@@ -14,24 +14,43 @@ public class Agent {
         String settingsLocation = args.length > 0 ? args[0] : "settings.json";
         Machine machine = Machine.buildFromSettings(settingsLocation);
 
-        if (machine.is_busy) {
-            machine.log_warning("Machine busy, wait until next run!");
+        while ((System.currentTimeMillis() / 1000) < machine.session) {
+        }
+
+        if (machine.isBusy()) {
+            machine.log_warning("Agent: Machine busy, skipping!");
             return;
         }
 
-        if (machine.run_install) {
-            try {
-                new Installer().runInstall();
-            } catch (IOException e) {
-                e.printStackTrace();
-                machine.log_error("Error running install");
+        machine.setBusyUpdating(true);
+        machine.log_info("Agent: Set busy!");
+
+        try {
+
+            if (machine.run_install) {
+                try {
+                    new Installer().runInstall();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    machine.log_error("Error running install");
+
+                    machine.setBusyUpdating(false);
+                    machine.log_info("Agent: Set not busy!");
+
+                }
             }
+
+            MachineStats machinestats = new MachineStats(machine);
+            machinestats.save();
+
+            new Updater(machine).run();
+            new BackupJob(machine).runBackup();
+
+        } catch (Exception e) {
+            machine.log_error(e.toString());
+        } finally {
+            machine.setBusyUpdating(false);
+            machine.log_info("Agent: Set not busy!");
         }
-
-        new Thread(new Updater(machine)).start();
-        new BackupJob(machine).runBackup();
-
-        MachineStats machinestats = new MachineStats(machine);
-        machinestats.save();
     }
 }

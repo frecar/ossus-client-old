@@ -8,7 +8,7 @@ import java.net.URL;
 public class AgentUpdater extends GenericUpdater {
 
     private final String agent_file_name = "Agent.jar";
-    
+
     public AgentUpdater(Machine machine) {
         super(machine);
     }
@@ -30,7 +30,7 @@ public class AgentUpdater extends GenericUpdater {
 
     @Override
     protected String out_file_name() {
-        return machine.get_agent_folder()+agent_file_name;
+        return machine.get_agent_folder() + agent_file_name;
     }
 
     @Override
@@ -53,11 +53,25 @@ public class AgentUpdater extends GenericUpdater {
         String settingsLocation = args.length > 0 ? args[0] : "settings.json";
         Machine machine = Machine.buildFromSettings(settingsLocation);
 
-        if (machine.is_busy) {
-            machine.log_warning("Machine busy, wait until next run!");
+        while ((System.currentTimeMillis() / 1000) < machine.session) {
+        }
+
+        if (machine.isBusy()) {
+            machine.log_warning("Updater: Machine busy, skipping!");
             return;
         }
 
-        new AgentUpdater(machine).run();
+        machine.setBusyUpdating(true);
+        machine.log_info("Updater: Set busy!");
+
+        try {
+            new AgentUpdater(machine).run();
+
+        } catch (Exception e) {
+            machine.log_error(e.toString());
+        } finally {
+            machine.setBusyUpdating(false);
+            machine.log_info("Updater: Set not busy!");
+        }
     }
 }

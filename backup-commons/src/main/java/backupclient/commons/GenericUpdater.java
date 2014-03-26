@@ -30,8 +30,8 @@ abstract public class GenericUpdater implements Runnable {
     protected abstract void download_done(Version new_version);
     
     public void run() {
-        if (!machine.auto_update &&
-                (current_version().equals(selected_version()))) {
+
+        if (!machine.auto_update && (current_version().equals(selected_version()))) {
             return;
         }
 
@@ -46,6 +46,7 @@ abstract public class GenericUpdater implements Runnable {
             else
                 machine.log_error("New version was (probably) not downloaded...");
         }
+
     }
     
     private Version getSelectedVersion() {
@@ -81,11 +82,11 @@ abstract public class GenericUpdater implements Runnable {
 
     private void readAndSaveJar(URL jar_url) throws IOException {
         if (jar_url == null) throw new IOException("URL argument is null");  // not really an ioexception, fix?
-        
+
         BufferedOutputStream file_out = create_updater_file();
         BufferedInputStream in = new BufferedInputStream(jar_url.openStream());
 
-        machine.log_info("Starting download");
+        machine.log_info("Starting download new version of: " + out_file_name());
 
         int read, total = 1;
         byte[] buff = new byte[8192];   // todo: whats a good size
@@ -93,9 +94,10 @@ abstract public class GenericUpdater implements Runnable {
             total += read;
             file_out.write(buff, 0, read);
         }
-            
+
+
         file_out.flush();
-        machine.log_info("Done downloading new version. Total of " + total + "bytes read");
+        machine.log_info("Done downloading new version of: " + out_file_name() + ". Total of " + total + "bytes read");
         file_out.close();
         in.close();
 
@@ -103,17 +105,25 @@ abstract public class GenericUpdater implements Runnable {
 
     private BufferedOutputStream create_updater_file() throws IOException {
 
-        machine.log_info("Creating local file: " + out_file_name() );
         File jar_file = new File(out_file_name());
-        if (jar_file.exists()) {
-            new RandomAccessFile(jar_file, "rw").setLength(0);
-        }
-        else {
-            boolean created = jar_file.createNewFile();
-            if (!created) throw new IOException("Could not create file " + jar_file );
+
+        if(!jar_file.exists()) {
+            machine.log_info("No file exists..: " + out_file_name());
+        } else {
+            machine.log_info("Delete old version of: " + out_file_name());
+            if(new File(out_file_name()).delete()) {
+                machine.log_info(out_file_name() + " deleted");
+            }
+            else {
+                machine.log_error(out_file_name() + " could not be deleted");
+            }
         }
 
-        machine.log_info("local file created");
+        machine.log_info("Creating local file: " + out_file_name() );
+        boolean created = jar_file.createNewFile();
+        if (!created) throw new IOException("Could not create file " + jar_file );
+
+        machine.log_info("local file created: " + out_file_name());
         return new BufferedOutputStream(new FileOutputStream(jar_file));
     }
 

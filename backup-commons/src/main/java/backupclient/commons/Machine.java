@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
+import java.util.Random;
 
 public class Machine {
 
@@ -25,11 +26,12 @@ public class Machine {
     public String agent_folder;
     public String local_temp_folder;
     public final String os_system;
-    public final boolean is_busy;
     public final String mysql_dump;
     public final String downloads_client;
     public final Boolean force_action;
     public final Boolean run_install;
+
+    public long session;
 
     public final Log log;
 
@@ -45,6 +47,7 @@ public class Machine {
 		this.mysql_dump = settings.get("mysql_dump");
 		this.agent_folder = settings.get("agent_folder");
 		this.local_temp_folder = settings.get("local_temp_folder");
+        this.session = (System.currentTimeMillis() / 1000) + new Random().nextInt(40);
 
 		apiHandler = new APIHandler(this.server_ip + "/api/", api_user, api_token);
 
@@ -75,7 +78,6 @@ public class Machine {
         this.selected_updater_version = Version.buildFromJson((JSONObject)  data.get("selected_updater_version"), this);
 
         this.auto_update = (Boolean) data.get("auto_update");
-		this.is_busy = (Boolean) data.get("is_busy");
 		this.run_install = (Boolean) data.get("run_install");
 
         this.set_machine_external_ip(this.getExternalIP());
@@ -84,6 +86,12 @@ public class Machine {
         //log_info("Current updater version: FocusBackup " + current_updater_version);
         //log_info("Current external ip: " + this.getExternalIP());
 
+    }
+
+    public boolean isBusy() {
+        List<JSONObject> obj = apiHandler.get_api_data("machines/"+this.id);
+        JSONObject data = (JSONObject)obj.get(0).get("machine");
+        return (Boolean) data.get("is_busy");
     }
 
     public String getExternalIP() {
@@ -142,7 +150,6 @@ public class Machine {
         return current_updater_version;
     }
 
-
     public void set_machine_external_ip(String ipAddress) {
         final String agent_url = "machines/" + id + "/set_machine_external_ip/" + ipAddress;
 
@@ -152,6 +159,14 @@ public class Machine {
                 apiHandler.get_api_data(agent_url);
             }
         }).start();
+    }
+
+    public void setBusyUpdating(boolean busy) {
+        String b = (busy ? "1" : "0");
+
+        final String agent_url = "machines/" + id + "/set_busy_updating/" + b + "/";
+        apiHandler.get_api_data(agent_url);
+
     }
 
     public void set_current_agent_version(Version current_agent_version) {
@@ -177,15 +192,15 @@ public class Machine {
     }
 
 	public void log_info(String text) {
-		this.log.log_info(text);	
+		this.log.log_info(session + ": "+text);
 	}
 
 	public void log_error(String text) {
-		this.log.log_error(text);	
+		this.log.log_error(session + ": "+text);
 	}
 
 	public void log_warning(String text) {
-		this.log.log_warning(text);	
+		this.log.log_warning(session + ": "+text);
 	}
 
     public String get_local_temp_folder() {
