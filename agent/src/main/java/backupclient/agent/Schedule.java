@@ -143,9 +143,6 @@ public class Schedule {
 
 		String start = this.getDateTime();
 		
-		this.setRunning_backup(true);
-		this.save();
-
 		FTPStorage ftpStorage = this.storage;
 
 		String file_separator = System.getProperty("file.separator");
@@ -261,7 +258,6 @@ public class Schedule {
             }
         }
 
-		this.setRunning_backup(false);
 
         this.createBackupEntry(start, this.getDateTime(), filename_zip);
 

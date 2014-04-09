@@ -103,7 +103,15 @@ public class BackupJob {
         for (Schedule schedule : this.schedules) {
             if (new Date().after(schedule.get_next_backup_time())) {
                 machine.log_info("Running schedule " + schedule.getName());
+
+                schedule.setRunning_backup(true);
+                schedule.save();
+
                 schedule.runBackup();
+
+                schedule.setRunning_backup(false);
+                schedule.save();
+
             }
         }
     }
