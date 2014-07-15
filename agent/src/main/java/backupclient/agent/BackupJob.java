@@ -104,14 +104,21 @@ public class BackupJob {
             if (new Date().after(schedule.get_next_backup_time())) {
                 machine.log_info("Running schedule " + schedule.getName());
 
-                schedule.setRunning_backup(true);
-                schedule.save();
+                if(!schedule.getRunning_backup()) {
 
-                schedule.runBackup();
+                    schedule.setRunning_backup(true);
+                    schedule.save();
 
-                schedule.setRunning_backup(false);
-                schedule.save();
+                    try {
+                        schedule.runBackup();
+                    } catch (Exception e) {
+                        this.machine.log_error(e.getMessage());
+                    }
 
+                    schedule.setRunning_backup(false);
+                    schedule.save();
+
+                }
             }
         }
     }

@@ -35,16 +35,20 @@ abstract public class GenericUpdater implements Runnable {
             return;
         }
 
+
         Version selected = getSelectedVersion();
         if (selected == null) {
             machine.log_error("Failed getting version data");
             return;
         }
         else if (!selected.equals(current_version())) {
-            if(download_version(selected))
+            if(download_version(selected)) {
                 download_done(selected);
-            else
+                machine.log_info("Set new " + selected.name);
+            }
+            else {
                 machine.log_error("New version was (probably) not downloaded...");
+            }
         }
 
     }
@@ -69,7 +73,7 @@ abstract public class GenericUpdater implements Runnable {
         URL jar_url = download_link(version);
         if (jar_url != null) try {
             readAndSaveJar(jar_url);
-        } catch (IOException e) {
+        } catch (Exception e) {
             machine.log_error(e.toString());
             return false;
         }

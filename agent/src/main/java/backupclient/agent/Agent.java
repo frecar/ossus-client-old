@@ -1,6 +1,5 @@
 package backupclient.agent;
 
-import backupclient.commons.CrossProcessLock;
 import backupclient.commons.Machine;
 import backupclient.install.Installer;
 
@@ -14,43 +13,54 @@ public class Agent {
         String settingsLocation = args.length > 0 ? args[0] : "settings.json";
         Machine machine = Machine.buildFromSettings(settingsLocation);
 
-        while ((System.currentTimeMillis() / 1000) < machine.session) {
-        }
-
         if (machine.isBusy()) {
             machine.log_warning("Agent: Machine busy, skipping!");
             return;
         }
 
-        machine.setBusyUpdating(true);
-        machine.log_info("Agent: Set busy!");
+        if (!machine.isBusy() && machine.changesBusyStatus(true)) {
+            machine.log_info("Agent: Set busy!");
 
-        try {
-
-            if (machine.run_install) {
-                try {
-                    new Installer().runInstall();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    machine.log_error("Error running install");
-
-                    machine.setBusyUpdating(false);
-                    machine.log_info("Agent: Set not busy!");
-
-                }
+            if (!machine.isBusy()) {
+                machine.log_error("Agent: Something is wrong, the status should be busy by now.. but is not?");
+                return;
             }
 
-            MachineStats machinestats = new MachineStats(machine);
-            machinestats.save();
+            try {
+                if (machine.run_install) {
+                    try {
+                        new Installer().runInstall();
+                    } catch (IOException e) {
 
-            new Updater(machine).run();
-            new BackupJob(machine).runBackup();
+                        e.printStackTrace();
+                        machine.log_error("Error running install");
 
-        } catch (Exception e) {
-            machine.log_error(e.toString());
-        } finally {
-            machine.setBusyUpdating(false);
-            machine.log_info("Agent: Set not busy!");
+                        if(machine.changesBusyStatus(false)) {
+                            machine.log_info("Agent: Set not busy!");
+                        }
+                        else {
+                            machine.log_error("Agent: Something is wrong, the install failed and not I'm not able to set busy to false.");
+                            return;
+                        }
+                    }
+                }
+
+                MachineStats machinestats = new MachineStats(machine);
+                machinestats.save();
+
+                new Updater(machine).run();
+                new BackupJob(machine).runBackup();
+
+            } catch (Exception e) {
+                machine.log_error(e.toString());
+            } finally {
+                if (machine.changesBusyStatus(false)) {
+                    machine.log_info("Agent: Set not busy!");
+                } else {
+                    machine.log_error("Agent: Something is wrong! " +
+                            "The status should have changed back to not busy.");
+                }
+            }
         }
     }
 }

@@ -53,25 +53,32 @@ public class AgentUpdater extends GenericUpdater {
         String settingsLocation = args.length > 0 ? args[0] : "settings.json";
         Machine machine = Machine.buildFromSettings(settingsLocation);
 
-        while ((System.currentTimeMillis() / 1000) < machine.session) {
-        }
-
         if (machine.isBusy()) {
             machine.log_warning("Updater: Machine busy, skipping!");
             return;
         }
 
-        machine.setBusyUpdating(true);
-        machine.log_info("Updater: Set busy!");
+        if (machine.changesBusyStatus(true)) {
+            machine.log_info("Updater: Set busy!");
 
-        try {
-            new AgentUpdater(machine).run();
+            if (!machine.isBusy()) {
+                machine.log_error("Updater: Something is wrong, the status should be busy now.. but is not?");
+                return;
+            }
 
-        } catch (Exception e) {
-            machine.log_error(e.toString());
-        } finally {
-            machine.setBusyUpdating(false);
-            machine.log_info("Updater: Set not busy!");
+            try {
+                new AgentUpdater(machine).run();
+            } catch (Exception e) {
+                machine.log_error(e.toString());
+            } finally {
+
+                if (machine.changesBusyStatus(false)) {
+                    machine.log_info("Updater: Set not busy!");
+                } else {
+                    machine.log_error("Updater: Something is wrong! " +
+                            "The status should have changed back to not busy.");
+                }
+            }
         }
     }
 }

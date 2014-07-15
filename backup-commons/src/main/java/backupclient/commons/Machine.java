@@ -47,7 +47,7 @@ public class Machine {
 		this.mysql_dump = settings.get("mysql_dump");
 		this.agent_folder = settings.get("agent_folder");
 		this.local_temp_folder = settings.get("local_temp_folder");
-        this.session = (System.currentTimeMillis() / 1000) + new Random().nextInt(40);
+        this.session = (System.currentTimeMillis() / 1000) + new Random().nextInt(150);
 
 		apiHandler = new APIHandler(this.server_ip + "/api/", api_user, api_token);
 
@@ -152,43 +152,29 @@ public class Machine {
 
     public void set_machine_external_ip(String ipAddress) {
         final String agent_url = "machines/" + id + "/set_machine_external_ip/" + ipAddress;
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                apiHandler.get_api_data(agent_url);
-            }
-        }).start();
+        apiHandler.get_api_data(agent_url);
     }
 
-    public void setBusyUpdating(boolean busy) {
+    public boolean changesBusyStatus(boolean busy) {
         String b = (busy ? "1" : "0");
 
-        final String agent_url = "machines/" + id + "/set_busy_updating/" + b + "/";
-        apiHandler.get_api_data(agent_url);
+        final String agent_url = "machines/" + id + "/set_busy_updating/" + b + "/session/" + this.session + "/";
+        List<JSONObject> s = apiHandler.get_api_data(agent_url);
+
+        return (Boolean) s.get(0).get("changed_status");
 
     }
 
     public void set_current_agent_version(Version current_agent_version) {
         this.current_agent_version = current_agent_version;
         final String agent_url = "machines/" + id + "/set_agent_version/" + current_agent_version.id;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                apiHandler.get_api_data(agent_url);
-            }
-        }).start();
+        apiHandler.get_api_data(agent_url);
     }
 
     public void set_current_updater_version(Version current_updater_version) {
         this.current_updater_version = current_updater_version;
         final String updater_url = "machines/" + id + "/set_updater_version/" + current_updater_version.id;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                apiHandler.get_api_data(updater_url);
-            }
-        }).start();
+        apiHandler.get_api_data(updater_url);
     }
 
 	public void log_info(String text) {

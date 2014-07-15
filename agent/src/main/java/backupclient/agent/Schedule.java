@@ -57,7 +57,7 @@ public class Schedule {
 	}
 
 	public void setRunning_backup(Boolean running_backup) {
-        this.machine.log_info("Running backup " + this.name + " " + running_backup);
+        //this.machine.log_info("Running backup " + this.name + " " + running_backup);
 		this.running_backup = running_backup;
 	}
 
@@ -150,12 +150,17 @@ public class Schedule {
 
         String filename_zip = "";
 
+        if(this.getFolderBackups().size() == 0 && this.getSqlBackups().size() == 0) {
+            this.machine.log_warning("This schedule " + this.name + " have nothing to do..");
+            return;
+        }
+
         for (FolderBackup folderBackup : this.getFolderBackups()) {
 
             filename_zip = folderBackup.getPath().replaceAll("\\" + file_separator,"_").replaceAll("\\:","_").replaceAll(" ","-")+".zip";
 
             try {
-				this.machine.log_info("Zipping " + tmp_folder + filename_zip);
+				this.machine.log_info("Zipping " + tmp_folder + filename_zip + " - " + folderBackup.getPath());
 				Zipper.zipDir(tmp_folder + filename_zip, folderBackup.getPath(), this.machine);
 
 				File file = new java.io.File(tmp_folder + filename_zip);
@@ -234,10 +239,8 @@ public class Schedule {
             }
 
             filename_zip = filename_backup_zip.replace(file_separator, "_")+".zip";
-            System.out.println(filename_zip);
 
 			try {
-                System.out.println(folder_zip);
                 Zipper.zipDir(filename_zip, folder_zip, machine);
 			} catch (Exception e) {
 				this.machine.log_error(e.getMessage());

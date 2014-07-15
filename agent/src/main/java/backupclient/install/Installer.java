@@ -20,6 +20,7 @@ public class Installer {
         inputFileMap.put("Linux", new HashMap<String, String>());
         inputFileMap.get("Linux").put("amd64", "libsigar-amd64-linux.so");
         inputFileMap.get("Linux").put("x86", "libsigar-x86-linux.so");
+        inputFileMap.get("Linux").put("i386", "libsigar-x86-linux.so");
         outFileMap.put("Linux", "/usr/lib/");
 
         inputFileMap.put("Windows XP", new HashMap<String, String>());
